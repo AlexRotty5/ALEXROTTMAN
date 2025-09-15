@@ -1,0 +1,451 @@
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import { motion, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+
+const vertexShader = `
+varying vec2 vUv;
+uniform float time;
+uniform vec4 resolution;
+
+void main() {
+    vUv = uv;
+    gl_Position = vec4(position, 1.0);
+}
+`;
+
+const fragmentShader = `
+precision highp float;
+varying vec2 vUv;
+uniform float time;
+uniform vec4 resolution;
+
+float PI = 3.141592653589793238;
+
+mat4 rotationMatrix(vec3 axis, float angle) {
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+vec3 rotate(vec3 v, vec3 axis, float angle) {
+    mat4 m = rotationMatrix(axis, angle);
+    return (m * vec4(v, 1.0)).xyz;
+}
+
+float smin( float a, float b, float k ) {
+    k *= 6.0;
+    float h = max( k-abs(a-b), 0.0 )/k;
+    return min(a,b) - h*h*h*k*(1.0/6.0);
+}
+
+float sphereSDF(vec3 p, float r) {
+    return length(p) - r;
+}
+
+float sdf(vec3 p) {
+    vec3 p1 = rotate(p, vec3(0.0, 0.0, 1.0), time/5.0);
+    vec3 p2 = rotate(p, vec3(1.), -time/5.0);
+    vec3 p3 = rotate(p, vec3(1., 1., 0.), -time/4.5);
+    vec3 p4 = rotate(p, vec3(0., 1., 0.), -time/4.0);
+    
+    float final = sphereSDF(p1 - vec3(-0.5, 0.0, 0.0), 0.35);
+    float nextSphere = sphereSDF(p2 - vec3(0.55, 0.0, 0.0), 0.3);
+    final = smin(final, nextSphere, 0.1);
+    nextSphere = sphereSDF(p2 - vec3(-0.8, 0.0, 0.0), 0.2);
+    final = smin(final, nextSphere, 0.1);
+    nextSphere = sphereSDF(p3 - vec3(1.0, 0.0, 0.0), 0.15);
+    final = smin(final, nextSphere, 0.1);
+    nextSphere = sphereSDF(p4 - vec3(0.45, -0.45, 0.0), 0.15);
+    final = smin(final, nextSphere, 0.1);
+    
+    return final;
+}
+
+vec3 getNormal(vec3 p) {
+    float d = 0.001;
+    return normalize(vec3(
+        sdf(p + vec3(d, 0.0, 0.0)) - sdf(p - vec3(d, 0.0, 0.0)),
+        sdf(p + vec3(0.0, d, 0.0)) - sdf(p - vec3(0.0, d, 0.0)),
+        sdf(p + vec3(0.0, 0.0, d)) - sdf(p - vec3(0.0, 0.0, d))
+    ));
+}
+
+float rayMarch(vec3 rayOrigin, vec3 ray) {
+    float t = 0.0;
+    for (int i = 0; i < 100; i++) {
+        vec3 p = rayOrigin + ray * t;
+        float d = sdf(p);
+        if (d < 0.001) return t;
+        t += d;
+        if (t > 100.0) break;
+    }
+    return -1.0;
+}
+
+void main() {
+    vec2 newUV = (vUv - vec2(0.5)) * resolution.zw + vec2(0.5);
+    vec3 cameraPos = vec3(0.0, 0.0, 5.0);
+    vec3 ray = normalize(vec3((vUv - vec2(0.5)) * resolution.zw, -1));
+    vec3 color = vec3(0.95, 0.95, 0.95); // Slightly darker off-white background
+    
+    float t = rayMarch(cameraPos, ray);
+    if (t > 0.0) {
+        vec3 p = cameraPos + ray * t;
+        vec3 normal = getNormal(p);
+        float fresnel = pow(1.0 + dot(ray, normal), 3.0);
+        color = vec3(0.8, 0.0, 0.0); // Red lava
+        gl_FragColor = vec4(color, 1.0);
+    } else {
+        gl_FragColor = vec4(color, 1.0); // White background
+    }
+}
+`;
+
+// LavaLamp component
+const LavaLampShader = React.memo(() => {
+  const meshRef = useRef<any>();
+  const { size } = useThree();
+  
+  const uniforms = useMemo(() => ({
+    time: { value: 0 },
+    resolution: { value: new THREE.Vector4() }
+  }), []);
+
+  // Update resolution when size changes
+  useEffect(() => {
+    const { width, height } = size;
+    const imageAspect = 1;
+    let a1, a2;
+    
+    if (height / width > imageAspect) {
+      a1 = (width / height) * imageAspect;
+      a2 = 1;
+    } else {
+      a1 = 1;
+      a2 = (height / width) / imageAspect;
+    }
+    
+    uniforms.resolution.value.set(width, height, a1, a2);
+  }, [size, uniforms]);
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      uniforms.time.value = state.clock.elapsedTime;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <planeGeometry args={[5, 5]} />
+      <shaderMaterial
+        uniforms={uniforms}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+      />
+    </mesh>
+  );
+});
+
+LavaLampShader.displayName = 'LavaLampShader';
+
+// Typewriter component
+const Typewriter = ({
+  text,
+  speed = 100,
+  cursor = "|",
+  loop = false,
+  deleteSpeed = 50,
+  delay = 1500,
+  className,
+  style,
+}: {
+  text: string | string[];
+  speed?: number;
+  cursor?: string;
+  loop?: boolean;
+  deleteSpeed?: number;
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) => {
+  const [displayText, setDisplayText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [textArrayIndex, setTextArrayIndex] = useState(0);
+
+  // Validate and process input text
+  const textArray = Array.isArray(text) ? text : [text];
+  const currentText = textArray[textArrayIndex] || "";
+
+  useEffect(() => {
+    if (!currentText) return;
+
+    const timeout = setTimeout(
+      () => {
+        if (!isDeleting) {
+          if (currentIndex < currentText.length) {
+            setDisplayText((prev) => prev + currentText[currentIndex]);
+            setCurrentIndex((prev) => prev + 1);
+          } else if (loop) {
+            setTimeout(() => setIsDeleting(true), delay);
+          }
+        } else {
+          if (displayText.length > 0) {
+            setDisplayText((prev) => prev.slice(0, -1));
+          } else {
+            setIsDeleting(false);
+            setCurrentIndex(0);
+            setTextArrayIndex((prev) => (prev + 1) % textArray.length);
+          }
+        }
+      },
+      isDeleting ? deleteSpeed : speed,
+    );
+
+    return () => clearTimeout(timeout);
+  }, [
+    currentIndex,
+    isDeleting,
+    currentText,
+    loop,
+    speed,
+    deleteSpeed,
+    delay,
+    displayText,
+    text,
+  ]);
+
+  return (
+    <span className={className} style={style}>
+      {displayText}
+      <span className="animate-pulse">{cursor}</span>
+    </span>
+  );
+};
+
+interface ProductNavProps {
+  isActive: boolean;
+  onBack: () => void;
+}
+
+const ProductNav = ({ isActive, onBack }: ProductNavProps) => {
+  const productNavRef = useRef<HTMLDivElement>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isVisualHovered, setIsVisualHovered] = useState(false);
+  const [startVisualAnimation, setStartVisualAnimation] = useState(false);
+  const [physicalComplete, setPhysicalComplete] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ left: 0, width: 0 });
+  const menuRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const menuItems = [
+    {
+      icon: (props: React.SVGProps<SVGSVGElement>) => (
+        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      ),
+      label: "Home"
+    },
+    {
+      icon: (props: React.SVGProps<SVGSVGElement>) => (
+        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      ),
+      label: "Projects"
+    },
+    {
+      icon: (props: React.SVGProps<SVGSVGElement>) => (
+        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+      label: "Me"
+    }
+  ];
+
+  const handleMenuClick = (index: number) => {
+    if (index === 0) {
+      // Go directly to home screen, not back to intro
+      window.location.href = '/';
+    } else if (index === 1) {
+      // Already on projects - do nothing
+    } else if (index === 2) {
+      router.push('/about');
+    }
+  };
+
+  // Determine which button should be highlighted based on current page
+  const getActiveButtonIndex = () => {
+    return 1; // Projects button (index 1) is active on ProductNav page
+  };
+
+  // Update tooltip position when activeIndex changes
+  useEffect(() => {
+    if (activeIndex !== null && menuRef.current && tooltipRef.current) {
+      const menuItem = menuRef.current.children[activeIndex] as HTMLElement;
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const itemRect = menuItem.getBoundingClientRect();
+      const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    
+      const left = itemRect.left - menuRect.left + (itemRect.width - tooltipRect.width) / 2;
+    
+      setTooltipPosition({
+        left: Math.max(0, Math.min(left, menuRect.width - tooltipRect.width)),
+        width: tooltipRect.width
+      });
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    if (isActive) {
+      // Slide up when active
+      if (productNavRef.current) {
+        // Add a small delay to ensure smooth transition
+        setTimeout(() => {
+          if (productNavRef.current) {
+            productNavRef.current.style.transform = 'translateY(0%)';
+            setShouldAnimate(true);
+            // Reset typewriter animations after a brief delay
+            setTimeout(() => {
+              setShouldAnimate(false);
+              setTimeout(() => {
+                setShouldAnimate(true);
+              }, 100);
+            }, 200);
+          }
+        }, 100);
+      }
+    } else {
+      // Slide down when not active
+      if (productNavRef.current) {
+        productNavRef.current.style.transform = 'translateY(100%)';
+        setShouldAnimate(false);
+      }
+    }
+  }, [isActive]);
+
+
+
+  const handleClick = () => {
+    router.push('/physical-projects');
+  };
+
+  const handleVisualClick = () => {
+    router.push('/visual-projects');
+  };
+
+  return (
+    <div 
+      ref={productNavRef}
+      className="fixed bottom-0 left-0 w-full h-screen z-40 transition-transform duration-700 ease-out bg-gray-50"
+      style={{ 
+        transform: 'translateY(100%)'
+      }}
+    >
+
+      {/* Logo */}
+      <div className="fixed top-6 left-6 z-[100]">
+        <button onClick={() => router.push("/")} className="bg-transparent border-none p-0 cursor-pointer"><img src="/logo.png" alt="Alex Rottman" className="h-16 w-auto brightness-110 hue-rotate-15 saturate-75 transition-transform duration-300 ease-in-out hover:scale-110" /></button>
+      </div>
+
+
+      {/* LavaLamp Background */}
+      <div style={{ width: '100%', height: '100%', position: "absolute", zIndex: 0 }}>
+        <Canvas
+          camera={{
+            left: -0.5,
+            right: 0.5,
+            top: 0.5,
+            bottom: -0.5,
+            near: -1000,
+            far: 1000,
+            position: [0, 0, 2]
+          }}
+          orthographic
+          gl={{ antialias: true }}
+        >
+          <LavaLampShader key={isActive ? 'active' : 'inactive'} />
+        </Canvas>
+      </div>
+
+      {/* Content overlay */}
+      <div className="h-full relative z-10">
+        {/* Left side - Physical button - Fixed 1 inch from top */}
+        <div className="fixed left-16" style={{ top: '1in' }}>
+          <button
+            onClick={handleClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="relative px-12 py-8 rounded-full transition-all duration-300 ease-in-out bg-transparent hover:scale-105"
+          >
+            <div className="flex items-center">
+              <h2 className="text-6xl md:text-8xl font-bold">
+                <div className="relative">
+                  <Typewriter 
+                    key={`physical-${shouldAnimate ? 'active' : 'inactive'}`}
+                    text="lets get physical" 
+                    speed={150}
+                    loop={false}
+                    className={`uppercase tracking-[-0.1em] whitespace-nowrap mix-blend-difference transition-colors duration-300 ${
+                      isHovered ? 'text-red-300' : 'text-white'
+                    }`}
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      letterSpacing: '-0.1em',
+                      textShadow: '0 0 10px rgba(255,255,255,0.5)'
+                    }}
+                  />
+                </div>
+              </h2>
+            </div>
+          </button>
+        </div>
+
+        {/* Right side - Visual button - Fixed 1 inch from bottom */}
+        <div className="fixed right-16" style={{ bottom: '1in' }}>
+          <button
+            onClick={handleVisualClick}
+            onMouseEnter={() => setIsVisualHovered(true)}
+            onMouseLeave={() => setIsVisualHovered(false)}
+            className="relative px-12 py-8 rounded-full transition-all duration-300 ease-in-out bg-transparent hover:scale-105"
+          >
+            <div className="flex items-center">
+              <h2 className="text-6xl md:text-8xl font-bold">
+                <div className="relative">
+                  <Typewriter 
+                    key={`visual-${shouldAnimate ? 'active' : 'inactive'}`}
+                    text="lets get visual" 
+                    speed={150}
+                    loop={false}
+                    className={`uppercase tracking-[-0.1em] whitespace-nowrap mix-blend-difference transition-colors duration-300 ${
+                      isVisualHovered ? 'text-red-300' : 'text-white'
+                    }`}
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      letterSpacing: '-0.1em',
+                      textShadow: '0 0 10px rgba(255,255,255,0.5)'
+                    }}
+                  />
+                </div>
+              </h2>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductNav; 
