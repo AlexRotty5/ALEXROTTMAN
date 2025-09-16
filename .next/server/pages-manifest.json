@@ -3,7 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/physical-projects": "pages/physical-projects.js",
-  "/visual-projects": "pages/visual-projects.js",
-  "/projects/estoko": "pages/projects/estoko.js",
+  "/": "pages/index.js",
+  "/projects/geartrains": "pages/projects/geartrains.js",
   "/projects/nealfeay": "pages/projects/nealfeay.js"
 }

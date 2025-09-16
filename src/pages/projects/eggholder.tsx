@@ -82,7 +82,7 @@ const EggHolderPage = () => {
             className="space-y-1"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
-            <p className="text-2xl font-semibold text-gray-900">ME 103 (product realization: design and making) final project</p>
+            <p className="text-2xl font-semibold text-gray-900">ME 103 (Product Realization: Design and Making) Final Project</p>
           </motion.div>
         </motion.div>
 
@@ -204,7 +204,7 @@ const EggHolderPage = () => {
               variants={imageVariants}
             >
               <img
-                src="/images/egg2.jpg"
+                src="/images/egg-cup.png"
                 alt="Final Product"
                 className="w-full h-96 object-contain mt-2"
               />

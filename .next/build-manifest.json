@@ -12,6 +12,11 @@
   ],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -27,20 +32,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/physical-projects.js"
     ],
-    "/projects/estoko": [
+    "/projects/geartrains": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/projects/estoko.js"
+      "static/chunks/pages/projects/geartrains.js"
     ],
     "/projects/nealfeay": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/projects/nealfeay.js"
-    ],
-    "/visual-projects": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/visual-projects.js"
     ]
   },
   "ampFirstPages": []
