@@ -2,7 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/visual-projects": "pages/visual-projects.js",
   "/": "pages/index.js",
-  "/physical-projects": "pages/physical-projects.js"
+  "/about": "pages/about.js"
 }

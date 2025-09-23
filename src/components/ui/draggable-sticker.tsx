@@ -73,7 +73,7 @@ export const DraggableSticker: React.FC<DraggableStickerProps> = ({
         fontFamily: "'Inter', sans-serif",
         filter: isDragging ? 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
         left: `calc(40% + ${index * 40}px)`, // Final position
-        top: `calc(78% + ${index * 2}px)`, // Moved down from 75% to 78%
+        top: `calc(70% + ${index * 2}px)`, // Moved up from 78% to 70%
         userSelect: 'none',
         WebkitUserSelect: 'none',
         MozUserSelect: 'none',
