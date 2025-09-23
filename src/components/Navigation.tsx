@@ -51,7 +51,7 @@ const Navigation: React.FC<NavigationProps> = ({
 
   const projectDropdownItems = [
     { label: "Physical", route: "/physical-projects" },
-    { label: "Digital Dev", route: "/visual-projects" }
+    { label: "Digital Dev", route: "/visual-projects" },
   ];
 
   const handleMenuClick = (index: number) => {

@@ -1,0 +1,15 @@
+                <p className="text-sm sm:text-base">
+                  Growing up in Santa Barbara, I developed a love for building and problem-solving that has grown into a career path in product engineering. Now, as a Stanford University student pursuing a B.S. in Physical Design and Manufacturing, I'm driven by the challenge of turning ideas into functional, well-engineered products.
+                </p>
+                
+                <p className="text-sm sm:text-base">
+                  Over the past three years as a student-athlete, I've deepened my skills in design and manufacturing, from the design process to manufacturing and process optimization. I've built a strong foundation in CAD modeling, prototyping, and efficient manufacturing through hands-on work in Stanford's Product Realization Lab, where I've spent my time bridging design thinking with practical engineering.
+                </p>
+
+                <p className="text-sm sm:text-base">
+                  I've also gained valuable experience through class projects and internships, where I contributed to product engineering, precision manufacturing and optimizing supply chain process with statistical analysis. The problem-solver in me loves to intentionally increase efficiency within the workspace.
+                </p>
+
+                <p className="text-sm sm:text-base">
+                  Looking forward, I want to pursue a career in product engineering—working at the intersection of design, manufacturing, and engineering to bring innovative, functional products to life. My goal is to help shape the future of how things are made, creating solutions that are efficient, impactful, and thoughtfully designed.
+                </p>

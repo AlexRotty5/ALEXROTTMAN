@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
@@ -27,7 +28,7 @@ const EggHolderPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 0.8 }
     }
   };
 
@@ -36,7 +37,7 @@ const EggHolderPage = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 1 }
     }
   };
 
@@ -114,7 +115,7 @@ const EggHolderPage = () => {
               </h2>
               <div className="space-y-6 text-gray-700 leading-relaxed">
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  This piece was a final project for ME 103 at Stanford's Product Realization Lab (PRL), involving 10 weeks of work and the use of various machines and manufacturing skills. The inspiration came from a trip to Spain and a friend named Emma, whose family had a tradition of serving soft-boiled eggs in unique egg cups.
+                  This piece was a final project for ME 103 fully handmade in Stanford's Product Realization Lab (PRL). It took 10 weeks of work and the use of various machines and manufacturing skills. The inspiration came from a trip to Spain with Emma, whose family has a tradition of serving soft-boiled eggs in unique egg cups.
                 </p>
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
                   I aimed to make a "glorified version" as a gift for Emma, incorporating elements of Spanish culture, such as a Barcelona tile-inspired hammer holder and a bead-blasted finish with Spanish floral patterns.
@@ -179,13 +180,16 @@ const EggHolderPage = () => {
               </h2>
               <div className="space-y-6 text-gray-700 leading-relaxed">
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  This project consists of five distinct pieces, secured by a single 1/4-20 shoulder screw. All pieces were created using various manufacturing processes in the PRL.
+                  This project consists of five distinct pieces, secured by a single 1/4-20 shoulder screw.
                 </p>
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  The base and the middle were machined from brass stock on a lathe using a radius cutter and a left-hand tool. The egg cup and miniature hammer were sand-casted using 3D-printed molds. The Barcelona tile-inspired hammer holder was 3D modeled and cut with a water jet cutter.
+                  The base and the middle piece were machined from brass stock on a lathe using a radius cutter and a left-hand tool. The egg cup and miniature hammer were sand-casted using 3D-printed molds. The Barcelona tile-inspired hammer holder was 3D modeled and cut with a water jet cutter.
                 </p>
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Additional processes used included milling (for facing, tapping, drilling, chamfering) and various finishing techniques such as sanding, polishing, bead blasting, vinyl cutting, and 3D printing, to achieve a refined finish.
+                </p>
+                <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  A major challenge in the milling process was figuring out how to mount the intricate geometries of my pieces. I chose to design and 3D-printed custom mounts, which let me secure each part in the mill, face it off, and assemble it with the tolerances I had calculated!
                 </p>
               </div>
             </motion.div>
@@ -223,7 +227,7 @@ const EggHolderPage = () => {
                   This project was a meaningful personal endeavor and a valuable learning experience. It deepened my understanding of manufacturing processes and significantly enhanced my engineering skills, particularly in designing for manufacturability.
                 </p>
                 <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  It was a challenging yet rewarding experience that combined creativity, craftsmanship, and technical precision. The project showcased my ability to integrate multiple manufacturing techniques and create a cohesive, functional piece.
+                  It was a challenging yet rewarding experience that combined creativity, craftsmanship, and technical precision.
                 </p>
               </div>
             </motion.div>

@@ -3,16 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from "framer-motion";
-// import { SplashCursor } from '../../components/ui/splash-cursor';
 import Image from 'next/image';
 import Navigation from '@/components/Navigation';
+import { DraggableSticker } from '@/components/ui/draggable-sticker';
 
 const AboutPage = () => {
   const router = useRouter();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [showDragText, setShowDragText] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-
-
 
   // Scroll handler for hiding/showing header
   useEffect(() => {
@@ -35,35 +34,51 @@ const AboutPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Show drag text after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowDragText(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
-
-
+  // Prevent text selection during drag operations
+  useEffect(() => {
+    const preventSelection = (e: Event) => {
+      e.preventDefault();
+    };
+    
+    const preventDragStart = (e: Event) => {
+      e.preventDefault();
+    };
+    
+    // Add event listeners
+    document.addEventListener('selectstart', preventSelection);
+    document.addEventListener('dragstart', preventDragStart);
+    document.addEventListener('mousedown', preventSelection);
+    
+    return () => {
+      document.removeEventListener('selectstart', preventSelection);
+      document.removeEventListener('dragstart', preventDragStart);
+      document.removeEventListener('mousedown', preventSelection);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      
       {/* Logo - with scroll-based visibility */}
       <div 
         className={`fixed top-6 left-6 z-50 transition-all duration-300 ease-in-out ${
           isHeaderVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         }`}
       >
-        <img src="/logo.png" alt="Alex Rottman" className="h-16 w-auto transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer" onClick={() => router.push("/")} />
+        <img 
+          src="/logo.png" 
+          alt="Alex Rottman" 
+          className="h-16 w-auto transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer" 
+          onClick={() => router.push("/")} 
+        />
       </div>
-      {/* <SplashCursor 
-        SIM_RESOLUTION={64}
-        DYE_RESOLUTION={512}
-        CAPTURE_RESOLUTION={256}
-        DENSITY_DISSIPATION={2}
-        VELOCITY_DISSIPATION={1.5}
-        PRESSURE={0.05}
-        PRESSURE_ITERATIONS={10}
-        CURL={2}
-        SPLAT_RADIUS={0.15}
-        SPLAT_FORCE={3000}
-        SHADING={false}
-        COLOR_UPDATE_SPEED={5}
-      /> */}
 
       {/* Navigation Component */}
       <Navigation currentPage="about" isHeaderVisible={isHeaderVisible} />
@@ -113,34 +128,33 @@ const AboutPage = () => {
 
               <div className="space-y-3 sm:space-y-4 text-gray-700 leading-relaxed">
                 <p className="text-sm sm:text-base">
-                  Growing up in the small town of Santa Barbara, surrounded by breathtaking natural landscapes, I developed a deep appreciation for creating functional and aesthetically pleasing designs. Now, as a Stanford University student pursuing a B.S. in Physical Design and Manufacturing with a focus on medical technology, I am channeling that inspiration into engineering and design.
+                  Growing up in Santa Barbara, I developed a love for building and problem-solving that has grown into a career path in product engineering. Now, as a Stanford University student pursuing a B.S. in Physical Design and Manufacturing, I'm driven by the challenge of turning ideas into functional, well-engineered products.
                 </p>
                 
                 <p className="text-sm sm:text-base">
-                  Over the past three years as a student-athlete, I have cultivated a deeper passion for designing and manufacturing purposeful, innovative, and visually striking products. Through design, I've built a strong foundation in design thinking and manufacturing processes. Additionally, I've honed my technical skills with engineering 3D models and fabricating products in Stanford's Product Realization Lab, where I've brought ideas to life through hands-on prototyping and machining.
+                  Over the past 4 years as a student-athlete, I've deepened my skills in design and manufacturing, from needfinding to process optimization. I've built a strong foundation in CAD modeling, prototyping, and efficient manufacturing through hands-on work in Stanford's Product Realization Lab, where I've spent my time bridging thought out engineering plans with physical fabrication.
                 </p>
 
                 <p className="text-sm sm:text-base">
-                  My enthusiasm for engineering has been further amplified by class projects and my internship at Neal Feay, where I gained valuable experience in precision modeling and manufacturing.
+                  I've also gained valuable experience through class projects and internships, where I contributed to product engineering, precision manufacturing and optimizing supply chain process with statistical analysis. The problem-solver in me loves to intentionally increase efficiency within the workspace.
                 </p>
 
                 <p className="text-sm sm:text-base">
-                  Looking ahead, I aim to explore new frontiers in product design, manufacturing, and mechanical engineering. My goal is to contribute to advancing technology development, making manufacturing processes more efficient and innovative while ensuring products are both functional and beautifully designed.
+                  Looking forward, I want to pursue a career in product engineering—working at the intersection of design, manufacturing, and engineering to bring innovative, functional products to life. My goal is to continue to develop my technical skills and eventually contribute to a meaningful mission and purpose. Leveraging new technology and changing how products are made. To create products that are efficient, impactful, and thoughtfully designed.
                 </p>
               </div>
 
-              {/* Skills/Tags */}
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2">
-                {['Product Design', 'Industrial Design', 'Software Development', 'Prototyping', 'User Experience', '3D Modeling', 'Frontend Development', 'Design Systems'].map((skill, index) => (
-                  <motion.span
+              {/* Draggable Skills Stickers - Can be dragged anywhere on screen */}
+              <div className="pt-2">
+                {showDragText && <p className="text-sm text-gray-600 mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Drag the stickers!
+                </p>}
+                {['CAD Modeling', 'Prototyping', 'Manufacturing Processes', 'Product Design', 'Tolerancing & Dimensioning', 'DFM/DFA', 'Materials Science', 'Solution-Oriented', 'Process Optimization (PFMEA/ DOE)', 'Project Management'].map((skill, index) => (
+                  <DraggableSticker
                     key={skill}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                    className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-                  >
-                    {skill}
-                  </motion.span>
+                    skill={skill}
+                    index={index}
+                  />
                 ))}
               </div>
 
@@ -149,7 +163,7 @@ const AboutPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                className="flex flex-col gap-2 sm:gap-3 pt-2"
+                className="flex flex-row gap-4 sm:gap-6 pt-6 items-center"
               >
                 {/* LinkedIn Button */}
                 <a
@@ -190,4 +204,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage; 
+export default AboutPage;

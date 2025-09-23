@@ -39,20 +39,10 @@ export const InfiniteSlider = forwardRef<{ setPosition: (position: number) => vo
     setPosition: (position: number) => {
       console.log('InfiniteSlider setPosition called with:', position);
       
-      // Start from far right (positive position) and animate to target
-      const startFromRight = window.innerWidth;
-      translation.set(startFromRight);
-      
-      // Animate to the target position
-      animate(translation, position, {
-        duration: 1.5,
-        ease: "easeOut",
-        onComplete: () => {
-          // After animation completes, set the manual position to continue normal flow
-          setManualPosition(position);
-          setKey(prev => prev + 1);
-        }
-      });
+      // Jump directly to target position without animation
+      translation.set(position);
+      setManualPosition(position);
+      setKey(prev => prev + 1);
     },
   }));
 

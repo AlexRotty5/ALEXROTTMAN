@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/router';
@@ -27,7 +28,7 @@ const GearTrainsPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 0.8 }
     }
   };
 
@@ -36,7 +37,7 @@ const GearTrainsPage = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 1 }
     }
   };
 
@@ -93,12 +94,12 @@ const GearTrainsPage = () => {
                 <img
                   src="/images/gear3.jpeg"
                   alt="Gear Trains Project 3"
-                  className="w-full h-96 object-contain rounded-[8px] shadow-2xl"
+                  className="w-full h-80 object-cover"
                 />
                 <img
                   src="/images/gear1.jpg"
                   alt="Gear Trains Project"
-                  className="w-full h-96 object-contain rounded-[8px] shadow-2xl"
+                  className="w-full h-80 object-cover"
                 />
               </div>
             </motion.div>
@@ -135,10 +136,10 @@ const GearTrainsPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img src="/images/gear2.jpg" alt="Process 2" className="w-full h-48 object-contain rounded-[8px] shadow-2xl" />
-                <img src="/images/gear6.jpg" alt="Process 6" className="w-full h-48 object-contain rounded-[8px] shadow-2xl" />
-                <img src="/images/gear4.jpg" alt="Process 4" className="w-full h-48 object-contain rounded-[8px] shadow-2xl" />
-                <img src="/images/gear5.jpg" alt="Process 5" className="w-full h-48 object-contain rounded-[8px] shadow-2xl" />
+                <img src="/images/gear2.jpg" alt="Process 2" className="w-full h-52 object-contain " />
+                <img src="/images/gear6.jpg" alt="Process 6" className="w-full h-52 object-contain " />
+                <img src="/images/gear4.jpg" alt="Process 4" className="w-full h-52 object-contain " />
+                <img src="/images/gear5.jpg" alt="Process 5" className="w-full h-52 object-contain " />
               </div>
             </motion.div>
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
@@ -27,7 +28,7 @@ const NealFeayPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 0.8 }
     }
   };
 
@@ -36,7 +37,7 @@ const NealFeayPage = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }
+      transition: { duration: 1 }
     }
   };
 
@@ -239,7 +240,7 @@ const NealFeayPage = () => {
                     CHALLENGES
                   </h3>
                   <p className="text-xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-                    Tight tolerances meant frequent re-machining, while scratches and vibration often reset the entire workflow. These setbacks highlighted the importance of precision, quality control, and persistence in large-scale manufacturing.
+                    Tight tolerances meant very little margin for error in both modeling and machining each piece. Many parts were coming off the CNC with vibration and scratches, which affected assembly and the smooth surface we had engineered for. With limited time, I ran a series of statistical analyses to calculate how much time we needed and how much we could save by identifying the bottleneck. Once we discovered our fixture plates were causing the scratches and vibration, we followed a planned timeline for each piece and delivered the final product to New York on time.
                   </p>
                 </div>
               </div>

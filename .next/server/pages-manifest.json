@@ -2,8 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/physical-projects": "pages/physical-projects.js",
+  "/visual-projects": "pages/visual-projects.js",
   "/": "pages/index.js",
-  "/projects/geartrains": "pages/projects/geartrains.js",
-  "/projects/nealfeay": "pages/projects/nealfeay.js"
+  "/physical-projects": "pages/physical-projects.js"
 }

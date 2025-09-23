@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
-import { PhysicalProjectsCursor, EggHolderCursor, GaryLangCursor, GearTrainsCursor } from '@/components/ui/cursor';
+import { PhysicalProjectsCursor, EggHolderCursor, GaryLangCursor, GearTrainsCursor, AlexToolkitCursor } from '@/components/ui/cursor';
 import { ScrollProgress } from '@/components/ui/scroll-progress-1';
 import { InfiniteSlider } from '@/components/ui/infinite-slider';
 import Navigation from "@/components/Navigation";
@@ -30,7 +30,7 @@ const PhysicalProjects = () => {
     // Calculate which project is currently in the center-right area
     // Since the slider moves from 0 to negative values, we need to handle the offset
     const adjustedPosition = Math.abs(position);
-    const projectIndex = Math.round(adjustedPosition / projectWidth) % 4;
+    const projectIndex = Math.round(adjustedPosition / projectWidth) % 5;
     
     setActiveProject(projectIndex);
   };
@@ -99,6 +99,13 @@ const PhysicalProjects = () => {
           >
             Gear Trains
           </span>
+          <span 
+            className={getProjectNameStyle(4)} 
+            style={{ fontFamily: "'Inter', sans-serif" }}
+            onClick={() => handleProjectClick(4)}
+          >
+            Toolkit
+          </span>
 
         </div>
       </div>
@@ -122,7 +129,9 @@ const PhysicalProjects = () => {
             <EggHolderCursor />
           </div>
           <div className="flex-shrink-0 w-screen px-4 sm:px-6 lg:px-8 py-0">
-            <GearTrainsCursor />
+            <GearTrainsCursor />          </div>
+          <div className="flex-shrink-0 w-screen px-4 sm:px-6 lg:px-8 py-0">
+            <AlexToolkitCursor />
           </div>
 
         </InfiniteSlider>

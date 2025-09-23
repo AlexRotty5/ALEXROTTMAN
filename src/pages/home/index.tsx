@@ -191,6 +191,23 @@ const HomePage = () => {
           <WovenLightHero shouldAnimate={true} onIntroComplete={() => {}} showText={false} />
         </div>
         <div className="relative z-10 text-center px-4">
+        <style jsx>{`
+          .blue-gradient-text {
+            background: linear-gradient(45deg, #3b82f6, #60a5fa, #1e40af);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientMove 3s ease-in-out infinite;
+            padding: 0 2px;
+            margin: 0 -2px;
+          }
+          @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `}</style>
           <h1
             className="text-8xl font-bold text-white tracking-[-0.1em] uppercase"
             style={{
@@ -216,7 +233,7 @@ const HomePage = () => {
               letterSpacing: '-0.1em'
             }}
           >
-            Product Design Engineer
+            <span className="blue-gradient-text">Product Engineer</span>
           </p>
           
           {/* Enter Button */}
