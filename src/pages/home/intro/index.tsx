@@ -142,7 +142,7 @@ const IntroScreen = ({ isActive, activeSection, onBack, onComplete }: IntroScree
               letterSpacing: '-0.1em'
             }}
           >
-            I <span className="gradient-text">DESIGN</span> ✨
+            I <span className="gradient-text">DESIGN</span>
           </motion.h1>
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
