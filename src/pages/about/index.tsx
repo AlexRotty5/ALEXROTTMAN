@@ -8,12 +8,16 @@ import Navigation from '@/components/Navigation';
 import { DraggableSticker } from '@/components/ui/draggable-sticker';
 import { useImageLightbox } from '@/components/ImageLightbox';
 
+const RESUME_IMAGE_SRC =
+  '/images/ALEX%20ROTTMAN%20RESUME%202026%20(2).png';
+
 const AboutPage = () => {
   const router = useRouter();
   const { open: openLightbox } = useImageLightbox();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [showDragText, setShowDragText] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [showResumeModal, setShowResumeModal] = useState(false);
 
   // Scroll handler for hiding/showing header
   useEffect(() => {
@@ -65,6 +69,20 @@ const AboutPage = () => {
       document.removeEventListener('mousedown', preventSelection);
     };
   }, []);
+
+  useEffect(() => {
+    if (!showResumeModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowResumeModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [showResumeModal]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -177,7 +195,7 @@ const AboutPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                className="flex flex-row gap-4 sm:gap-6 pt-6 items-center"
+                className="flex flex-row flex-wrap gap-3 sm:gap-6 pt-6 items-center"
               >
                 {/* LinkedIn Button */}
                 <a
@@ -192,6 +210,18 @@ const AboutPage = () => {
                   </svg>
                   <span className="font-medium uppercase tracking-[-0.05em] text-sm">LinkedIn</span>
                 </a>
+
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-stone-300/90 bg-white text-stone-700 text-xs sm:text-sm font-medium uppercase tracking-[-0.05em] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.02] transition-[color,background-color,border-color,box-shadow,ring-color] duration-200 ease-out hover:border-sky-400/45 hover:bg-sky-400/[0.09] hover:text-sky-800/90 hover:shadow-[0_4px_14px_rgba(14,165,233,0.12)] hover:ring-sky-300/30 w-fit"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                  onClick={() => setShowResumeModal(true)}
+                >
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Resume</span>
+                </button>
 
                 {/* Email Display */}
                 <div className="group relative">
@@ -214,6 +244,38 @@ const AboutPage = () => {
           </div>
         </motion.div>
       </div>
+
+      {showResumeModal ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="resume-modal-title"
+          className="fixed inset-0 z-[220] flex items-center justify-center bg-black/85 p-3 sm:p-6"
+          onClick={() => setShowResumeModal(false)}
+        >
+          <div
+            className="relative max-h-[92vh] w-full max-w-3xl overflow-auto rounded-xl bg-white p-2 pb-3 shadow-2xl ring-1 ring-black/10 sm:p-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="resume-modal-title" className="sr-only">
+              Resume
+            </h2>
+            <button
+              type="button"
+              className="absolute right-2 top-2 z-10 rounded-lg border border-stone-200 bg-white/95 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-stone-600 shadow-sm backdrop-blur-sm transition hover:border-sky-400/45 hover:bg-sky-400/[0.09] hover:text-sky-800 sm:right-3 sm:top-3"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              onClick={() => setShowResumeModal(false)}
+            >
+              Close
+            </button>
+            <img
+              src={RESUME_IMAGE_SRC}
+              alt="Alex Rottman resume"
+              className="mx-auto block h-auto w-full max-w-full rounded-lg"
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

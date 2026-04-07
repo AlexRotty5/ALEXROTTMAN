@@ -1,7 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useImageLightbox } from '@/components/ImageLightbox';
 
 const PREVIEW_SIZES = '(max-width: 768px) 100vw, 600px';
 
@@ -13,26 +12,28 @@ const previewTextColClass =
 function PreviewCardImage({
   src,
   alt,
+  href,
   priority = false,
 }: {
   src: string;
   alt: string;
+  href: string;
   priority?: boolean;
 }) {
-  const { open } = useImageLightbox();
+  const router = useRouter();
 
   return (
     <div
-      role="button"
+      role="link"
       tabIndex={0}
-      className="relative h-[500px] w-full max-w-[600px] rounded-[8px] overflow-hidden shadow-2xl cursor-zoom-in shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-stone-900/15 focus-visible:ring-offset-2"
+      className="relative h-[500px] w-full max-w-[600px] rounded-[8px] overflow-hidden shadow-2xl cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-stone-900/15 focus-visible:ring-offset-2"
       onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-      onClick={() => open(src, alt)}
+      onClick={() => router.push(href)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          open(src, alt);
+          router.push(href);
         }
       }}
     >
@@ -84,7 +85,11 @@ export function PhysicalProjectsCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/images/retinac.jpg" alt="Retinac" />
+        <PreviewCardImage
+          src="/images/retinac.jpg"
+          alt="Retinac"
+          href="/projects/retinac"
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -119,6 +124,7 @@ export function GaryLangCursor() {
         <PreviewCardImage
           src="/images/nealfeay.jpg"
           alt="Neal Feay Internship"
+          href="/projects/nealfeay"
           priority
         />
 
@@ -152,7 +158,11 @@ export function TempoCrankCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/images/post6.jpg" alt="Tempo Crank" />
+        <PreviewCardImage
+          src="/images/post6.jpg"
+          alt="Tempo Crank"
+          href="/projects/tempocrank"
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -184,7 +194,11 @@ export function WinterWaveCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/images/Wave1.v2.jpg" alt="Winter Wave" />
+        <PreviewCardImage
+          src="/images/Wave1.v2.jpg"
+          alt="Winter Wave"
+          href="/projects/winterwave"
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -216,7 +230,11 @@ export function EggHolderCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/images/eggcover.jpg" alt="Le Coquetier" />
+        <PreviewCardImage
+          src="/images/eggcover.jpg"
+          alt="Le Coquetier"
+          href="/projects/eggholder"
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -248,7 +266,11 @@ export function GearTrainsCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/images/gear1.jpg" alt="Gear Trains" />
+        <PreviewCardImage
+          src="/images/gear1.jpg"
+          alt="Gear Trains"
+          href="/projects/geartrains"
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -280,7 +302,11 @@ export function AlexToolkitCursor() {
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        <PreviewCardImage src="/toolkit1.jpg" alt="Alex's Toolkit" />
+        <PreviewCardImage
+          src="/toolkit1.jpg"
+          alt="Alex's Toolkit"
+          href="/projects/toolkit"
+        />
 
         <div className={previewTextColClass}>
           <h2
