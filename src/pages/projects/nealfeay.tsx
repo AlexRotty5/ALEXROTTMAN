@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const NEAL_FEAY_SKILLS = [
   'CAD',
@@ -113,7 +114,7 @@ const NealFeayPage = () => {
               className="relative grid grid-cols-2 gap-4 h-full"
               variants={imageVariants}
             >
-              <img
+              <LightboxImage
                 fetchPriority="high"
                 loading="eager"
                 decoding="async"
@@ -121,17 +122,17 @@ const NealFeayPage = () => {
                 alt="Gary Lang Sample Piece 1"
                 className="w-full h-full object-cover"
               />
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/gray2.jpg"
                 alt="Gary Lang Sample Piece 2"
                 className="w-full h-full object-cover"
               />
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/gary3.jpg"
                 alt="Gary Lang Sample Piece 3"
                 className="w-full h-full object-cover"
               />
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/gary4.jpg"
                 alt="Gary Lang Sample Piece 4"
                 className="w-full h-full object-cover"
@@ -188,13 +189,13 @@ const NealFeayPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/2201.jpg"
                   alt="220 Art Installation 1"
                   className="w-full h-80 object-contain"
                 />
                 <div>
-                  <img loading="lazy" decoding="async"
+                  <LightboxImage loading="lazy" decoding="async"
                     src="/images/2202.jpg"
                     alt="220 Art Installation 2"
                     className="w-full h-80 object-contain"
@@ -204,7 +205,7 @@ const NealFeayPage = () => {
                   </p>
                 </div>
               </div>
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/2203.jpeg"
                 alt="220 Art Installation 3"
                 className="w-full h-80 object-contain"
@@ -268,18 +269,18 @@ const NealFeayPage = () => {
               className="space-y-4 flex flex-col justify-center"
               variants={imageVariants}
             >
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/pga1.jpeg"
                 alt="PGA Championship Trophy"
                 className="w-full h-80 object-contain"
               />
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/pga2.jpeg"
                   alt="PGA Trophy CAD Model 1"
                   className="w-full h-64 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/pga3.jpeg"
                   alt="PGA Trophy CAD Model 2"
                   className="w-full h-64 object-contain"

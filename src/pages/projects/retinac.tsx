@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const RETINAC_SKILLS = [
   'Startup Dev',
@@ -109,7 +110,7 @@ const RetinacPage = () => {
               className="relative"
               variants={imageVariants}
             >
-              <img
+              <LightboxImage
                 fetchPriority="high"
                 loading="eager"
                 decoding="async"
@@ -233,14 +234,14 @@ const RetinacPage = () => {
               variants={imageVariants}
             >
               {/* Physical Prototypes */}
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/retinac2.jpg"
                 alt="Physical Prototypes"
                 className="max-w-full max-h-64 object-contain"
               />
               
               {/* Technical Drawings */}
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/retinac3.jpg"
                 alt="Technical Drawings"
                 className="max-w-full max-h-64 object-contain"
@@ -260,7 +261,7 @@ const RetinacPage = () => {
               className="relative flex flex-col justify-center items-center mt-8"
               variants={imageVariants}
             >
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/retinac4.jpg"
                 alt="First Prototype"
                 className="max-w-full max-h-80 object-contain"

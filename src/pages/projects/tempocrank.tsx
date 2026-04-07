@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const TEMPO_CRANK_SKILLS = [
   'Concept Development',
@@ -16,10 +17,6 @@ const TEMPO_CRANK_SKILLS = [
 const TempoCrankPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
-  const [selectedDrawing, setSelectedDrawing] = useState<{
-    src: string;
-    title: string;
-  } | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,7 +101,6 @@ const TempoCrankPage = () => {
                 src="/images/crank.MOV"
                 className="w-full h-auto max-h-[30rem] object-contain rounded-2xl"
                 onClick={() => {
-                  setSelectedDrawing(null);
                   setSelectedVideo('/images/crank.MOV');
                 }}
               >
@@ -118,10 +114,10 @@ const TempoCrankPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="space-y-4" variants={imageVariants}>
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/paper1.jpg" alt="Concept sketch page 1" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Paper2.jpg" alt="Concept sketch page 2" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Paper3.jpg" alt="Concept sketch page 3" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Paper4.jpg" alt="Concept sketch page 4" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/paper1.jpg" alt="Concept sketch page 1" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Paper2.jpg" alt="Concept sketch page 2" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Paper3.jpg" alt="Concept sketch page 3" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Paper4.jpg" alt="Concept sketch page 4" className="w-full h-64 object-cover rounded-md" />
               </div>
             </motion.div>
 
@@ -145,10 +141,10 @@ const TempoCrankPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="space-y-4" variants={imageVariants}>
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/Iteration2.jpg" alt="Tempo crank iteration 2" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Iteration3.jpg" alt="Tempo crank iteration 3" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Iteration4.jpg" alt="Tempo crank iteration 4" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Iteration1.jpg .png" alt="Tempo crank iteration 1" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Iteration2.jpg" alt="Tempo crank iteration 2" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Iteration3.jpg" alt="Tempo crank iteration 3" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Iteration4.jpg" alt="Tempo crank iteration 4" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Iteration1.jpg .png" alt="Tempo crank iteration 1" className="w-full h-64 object-cover rounded-md" />
               </div>
             </motion.div>
 
@@ -177,54 +173,39 @@ const TempoCrankPage = () => {
               <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 uppercase tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                 1. Handle
               </h3>
-              <img
+              <LightboxImage
+                caption="1. HANDLE"
                 loading="lazy"
                 decoding="async"
                 src="/images/ENGINEERINGDRAWING3.jpg"
                 alt="Handle engineering drawing"
-                className="w-full h-72 object-contain rounded-lg bg-white p-2 cursor-zoom-in"
-                onClick={() =>
-                  setSelectedDrawing({
-                    src: '/images/ENGINEERINGDRAWING3.jpg',
-                    title: '1. HANDLE',
-                  })
-                }
+                className="w-full h-72 object-contain rounded-lg bg-white p-2"
               />
             </motion.div>
             <motion.div variants={imageVariants} className="rounded-xl border border-stone-200 bg-stone-50 p-4 sm:p-5">
               <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 uppercase tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                 2. Housing
               </h3>
-              <img
+              <LightboxImage
+                caption="2. HOUSING"
                 loading="lazy"
                 decoding="async"
                 src="/images/ENGINEERINGDRAWING2.jpg"
                 alt="Housing engineering drawing"
-                className="w-full h-72 object-contain rounded-lg bg-white p-2 cursor-zoom-in"
-                onClick={() =>
-                  setSelectedDrawing({
-                    src: '/images/ENGINEERINGDRAWING2.jpg',
-                    title: '2. HOUSING',
-                  })
-                }
+                className="w-full h-72 object-contain rounded-lg bg-white p-2"
               />
             </motion.div>
             <motion.div variants={imageVariants} className="rounded-xl border border-stone-200 bg-stone-50 p-4 sm:p-5">
               <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 uppercase tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                 3. Insert
               </h3>
-              <img
+              <LightboxImage
+                caption="3. INSERT"
                 loading="lazy"
                 decoding="async"
                 src="/images/insertdrawing.jpg"
                 alt="Insert engineering drawing"
-                className="w-full h-72 object-contain rounded-lg bg-white p-2 cursor-zoom-in"
-                onClick={() =>
-                  setSelectedDrawing({
-                    src: '/images/insertdrawing.jpg',
-                    title: '3. INSERT',
-                  })
-                }
+                className="w-full h-72 object-contain rounded-lg bg-white p-2"
               />
             </motion.div>
           </div>
@@ -233,18 +214,13 @@ const TempoCrankPage = () => {
         <motion.div className="mb-20" variants={itemVariants}>
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div variants={imageVariants}>
-              <img
+              <LightboxImage
+                caption="ASSEMBLY EXPLODED VIEW"
                 loading="lazy"
                 decoding="async"
                 src="/images/ENGINEERINGDRAWING1.jpg"
                 alt="Tempo crank exploded assembly engineering drawing"
-                className="w-full h-[24rem] sm:h-[28rem] object-contain rounded-xl bg-stone-100 p-3 cursor-zoom-in"
-                onClick={() =>
-                  setSelectedDrawing({
-                    src: '/images/ENGINEERINGDRAWING1.jpg',
-                    title: 'ASSEMBLY EXPLODED VIEW',
-                  })
-                }
+                className="w-full h-[24rem] sm:h-[28rem] object-contain rounded-xl bg-stone-100 p-3"
               />
             </motion.div>
 
@@ -268,13 +244,13 @@ const TempoCrankPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="space-y-4" variants={imageVariants}>
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/CAD1.jpg" alt="CAD assembly study 1" className="w-full h-60 object-contain rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/CAD2.jpg" alt="CAD assembly study 2" className="w-full h-60 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/CAD1.jpg" alt="CAD assembly study 1" className="w-full h-60 object-contain rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/CAD2.jpg" alt="CAD assembly study 2" className="w-full h-60 object-cover rounded-md" />
                 <div className="rounded-md ring-2 ring-stone-300 ring-offset-2 ring-offset-white">
-                  <img loading="lazy" decoding="async" src="/images/CAM1.jpg" alt="CAM setup and simulation 1" className="w-full h-60 object-contain rounded-md" />
+                  <LightboxImage loading="lazy" decoding="async" src="/images/CAM1.jpg" alt="CAM setup and simulation 1" className="w-full h-60 object-contain rounded-md" />
                 </div>
                 <div className="rounded-md ring-2 ring-stone-300 ring-offset-2 ring-offset-white">
-                  <img loading="lazy" decoding="async" src="/images/CAM2.jpg" alt="CAM setup and simulation 2" className="w-full h-60 object-cover rounded-md" />
+                  <LightboxImage loading="lazy" decoding="async" src="/images/CAM2.jpg" alt="CAM setup and simulation 2" className="w-full h-60 object-cover rounded-md" />
                 </div>
               </div>
             </motion.div>
@@ -330,10 +306,10 @@ const TempoCrankPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="space-y-4" variants={imageVariants}>
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/Housing1.jpg" alt="Housing machining 1" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Housing2.jpg" alt="Housing machining 2" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Insert1.jpg" alt="Insert machining detail" className="w-full h-64 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Handle1.jpg" alt="Handle machining detail" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Housing1.jpg" alt="Housing machining 1" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Housing2.jpg" alt="Housing machining 2" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Insert1.jpg" alt="Insert machining detail" className="w-full h-64 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Handle1.jpg" alt="Handle machining detail" className="w-full h-64 object-cover rounded-md" />
               </div>
             </motion.div>
 
@@ -357,10 +333,10 @@ const TempoCrankPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="space-y-4 min-w-0 max-w-full" variants={imageVariants}>
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/Post1.jpg" alt="Post-machining sanding step" className="w-full h-60 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Post2.jpg" alt="Post-machining cleanup" className="w-full h-60 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Post3.jpg" alt="Post-machining hardware retention" className="w-full h-60 object-cover rounded-md" />
-                <img loading="lazy" decoding="async" src="/images/Post4.jpg" alt="Assembly process image" className="w-full h-60 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Post1.jpg" alt="Post-machining sanding step" className="w-full h-60 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Post2.jpg" alt="Post-machining cleanup" className="w-full h-60 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Post3.jpg" alt="Post-machining hardware retention" className="w-full h-60 object-cover rounded-md" />
+                <LightboxImage loading="lazy" decoding="async" src="/images/Post4.jpg" alt="Assembly process image" className="w-full h-60 object-cover rounded-md" />
               </div>
             </motion.div>
 
@@ -386,7 +362,7 @@ const TempoCrankPage = () => {
         <motion.div className="mb-10" variants={itemVariants}>
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <motion.div className="min-w-0 max-w-full" variants={imageVariants}>
-              <img
+              <LightboxImage
                 loading="lazy"
                 decoding="async"
                 src="/images/post6.jpg"
@@ -405,40 +381,6 @@ const TempoCrankPage = () => {
           </div>
         </motion.div>
       </motion.div>
-
-      {selectedDrawing && (
-        <div
-          className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
-          onClick={() => setSelectedDrawing(null)}
-        >
-          <div
-            className="relative w-full max-w-6xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setSelectedDrawing(null)}
-              className="absolute -top-12 right-0 text-white text-sm uppercase tracking-wide hover:text-gray-200"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
-              Close
-            </button>
-            <div className="bg-white rounded-xl p-4 sm:p-6">
-              <h3
-                className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 uppercase tracking-tight"
-                style={{ fontFamily: "'Inter', sans-serif" }}
-              >
-                {selectedDrawing.title}
-              </h3>
-              <img
-                src={selectedDrawing.src}
-                alt={`${selectedDrawing.title} engineering drawing enlarged`}
-                className="w-full max-h-[80vh] object-contain rounded-lg bg-stone-100"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {selectedVideo && (
         <div

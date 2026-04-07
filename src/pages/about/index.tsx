@@ -6,9 +6,11 @@ import { motion } from "framer-motion";
 import Image from 'next/image';
 import Navigation from '@/components/Navigation';
 import { DraggableSticker } from '@/components/ui/draggable-sticker';
+import { useImageLightbox } from '@/components/ImageLightbox';
 
 const AboutPage = () => {
   const router = useRouter();
+  const { open: openLightbox } = useImageLightbox();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [showDragText, setShowDragText] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -100,12 +102,25 @@ const AboutPage = () => {
               className="w-full md:w-auto flex-shrink-0 order-1 flex flex-col gap-6"
             >
               <div className="relative">
-                <div className="w-64 h-80 sm:w-80 sm:h-[400px] md:w-96 md:h-[500px] lg:w-[400px] lg:h-[600px] xl:w-[450px] xl:h-[650px] rounded-lg overflow-hidden shadow-2xl bg-gray-200 relative">
-                  <Image 
-                    src="/images/alex-profile.jpg" 
-                    alt="Alex Rottman" 
+                <div
+                  className="w-64 h-80 sm:w-80 sm:h-[400px] md:w-96 md:h-[500px] lg:w-[400px] lg:h-[600px] xl:w-[450px] xl:h-[650px] rounded-lg overflow-hidden shadow-2xl bg-gray-200 relative cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    openLightbox('/images/alex-profile.jpg', 'Alex Rottman')
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      openLightbox('/images/alex-profile.jpg', 'Alex Rottman');
+                    }
+                  }}
+                >
+                  <Image
+                    src="/images/alex-profile.jpg"
+                    alt="Alex Rottman"
                     fill
-                    className="object-cover"
+                    className="object-cover pointer-events-none"
                     onLoad={() => {}}
                     onError={(e) => console.error('Image failed to load:', e)}
                   />

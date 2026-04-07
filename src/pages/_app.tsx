@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import '../styles/globals.css'
 import '../styles/text-pressure.css'
 import RouteLifecycle from '../components/RouteLifecycle'
+import { ImageLightboxProvider } from '@/components/ImageLightbox'
 import { logPerf } from '../debug/perfLog'
  
 export default function App({ Component, pageProps }: any) {
@@ -13,7 +14,9 @@ export default function App({ Component, pageProps }: any) {
   return (
     <>
       <RouteLifecycle />
-      <Component {...pageProps} />
+      <ImageLightboxProvider>
+        <Component {...pageProps} />
+      </ImageLightboxProvider>
     </>
   )
 } 

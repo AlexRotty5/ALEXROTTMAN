@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useImageLightbox } from '@/components/ImageLightbox';
 
 const PREVIEW_SIZES = '(max-width: 768px) 100vw, 600px';
 
@@ -9,52 +10,81 @@ const previewRowClass =
 const previewTextColClass =
   'flex min-w-0 flex-1 flex-col justify-start md:max-w-md lg:max-w-lg xl:max-w-xl';
 
-const previewCardImage = (
-  src: string,
-  alt: string,
-  href: string,
-  router: ReturnType<typeof useRouter>,
-  options: { priority?: boolean } = {}
-) => (
-  <div
-    role="link"
-    tabIndex={0}
-    className="relative h-[500px] w-full max-w-[600px] rounded-[8px] overflow-hidden shadow-2xl cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-    onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-    onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-    onClick={() => router.push(href)}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        router.push(href);
-      }
-    }}
-  >
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      className="object-cover"
-      sizes={PREVIEW_SIZES}
-      priority={options.priority}
-      loading={options.priority ? undefined : 'lazy'}
-      decoding="async"
-    />
-  </div>
-);
+function PreviewCardImage({
+  src,
+  alt,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  const { open } = useImageLightbox();
 
-export function PhysicalProjectsCursor() {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className="relative h-[500px] w-full max-w-[600px] rounded-[8px] overflow-hidden shadow-2xl cursor-zoom-in shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-stone-900/15 focus-visible:ring-offset-2"
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
+      onClick={() => open(src, alt)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open(src, alt);
+        }
+      }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover pointer-events-none"
+        sizes={PREVIEW_SIZES}
+        priority={priority}
+        loading={priority ? undefined : 'lazy'}
+        decoding="async"
+      />
+    </div>
+  );
+}
+
+/** Next control for physical-projects rail — large target, clear affordance, light chrome */
+function ProjectRailLinkButton({ href, label }: { href: string; label: string }) {
   const router = useRouter();
 
   return (
+    <button
+      type="button"
+      aria-label={label}
+      className="group relative inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-stone-300/90 bg-white text-stone-600 shadow-[0_2px_8px_rgba(15,23,42,0.07),0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] backdrop-blur-sm transition-[color,background-color,border-color,transform,box-shadow,ring-color] duration-300 ease-out hover:border-sky-400/45 hover:bg-sky-400/[0.09] hover:text-sky-800/90 hover:shadow-[0_14px_32px_-8px_rgba(56,189,248,0.18),0_4px_14px_rgba(14,165,233,0.1)] hover:ring-sky-300/35 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/25 focus-visible:ring-offset-2 active:translate-y-0 active:scale-[0.98] active:border-sky-400/35 active:bg-sky-400/[0.06] active:shadow-[0_2px_8px_rgba(14,165,233,0.12)]"
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
+      onClick={() => router.push(href)}
+    >
+      <svg
+        className="h-7 w-7 translate-x-px transition-transform duration-300 ease-out group-hover:translate-x-1"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.65}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <path d="M4 12h14" />
+        <path d="m13 7 6 5-6 5" />
+      </svg>
+    </button>
+  );
+}
+
+export function PhysicalProjectsCursor() {
+  return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/retinac.jpg',
-          'Retinac',
-          '/projects/retinac',
-          router
-        )}
+        <PreviewCardImage src="/images/retinac.jpg" alt="Retinac" />
 
         <div className={previewTextColClass}>
           <h2
@@ -75,17 +105,7 @@ export function PhysicalProjectsCursor() {
           >
             Co-founder and Product Engineer for Retinac, a developing medical device out of Stanford University.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/retinac')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/retinac" label="Open Retinac project" />
         </div>
       </div>
     </div>
@@ -93,18 +113,14 @@ export function PhysicalProjectsCursor() {
 }
 
 export function GaryLangCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/nealfeay.jpg',
-          'Neal Feay Internship',
-          '/projects/nealfeay',
-          router,
-          { priority: true }
-        )}
+        <PreviewCardImage
+          src="/images/nealfeay.jpg"
+          alt="Neal Feay Internship"
+          priority
+        />
 
         <div className={previewTextColClass}>
           <h2
@@ -125,17 +141,7 @@ export function GaryLangCursor() {
           >
             Engineer Intern at Neal Feay, specializing in CAD modeling, precision machining, and project management tasks.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/nealfeay')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/nealfeay" label="Open Neal Feay project" />
         </div>
       </div>
     </div>
@@ -143,17 +149,10 @@ export function GaryLangCursor() {
 }
 
 export function TempoCrankCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/post6.jpg',
-          'Tempo Crank',
-          '/projects/tempocrank',
-          router
-        )}
+        <PreviewCardImage src="/images/post6.jpg" alt="Tempo Crank" />
 
         <div className={previewTextColClass}>
           <h2
@@ -174,17 +173,7 @@ export function TempoCrankCursor() {
           >
             A volleyball net crank system that sets up and takes down nets 2× faster using a geared transmission system.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/tempocrank')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/tempocrank" label="Open Tempo Crank project" />
         </div>
       </div>
     </div>
@@ -192,17 +181,10 @@ export function TempoCrankCursor() {
 }
 
 export function WinterWaveCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/Wave1.v2.jpg',
-          'Winter Wave',
-          '/projects/winterwave',
-          router
-        )}
+        <PreviewCardImage src="/images/Wave1.v2.jpg" alt="Winter Wave" />
 
         <div className={previewTextColClass}>
           <h2
@@ -215,25 +197,15 @@ export function WinterWaveCursor() {
             className="text-xl sm:text-2xl font-medium text-gray-600 mb-5 sm:mb-6 uppercase tracking-[-0.05em]"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
-            CNC machined bottle opener
+            CNC Machined Bottle Opener
           </h3>
           <p
             className="text-lg sm:text-xl text-gray-700 leading-relaxed mb-8"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
-            A bottle opener designed not to look like one—sculptural enough to live on a desk as a small objet while still working as a tool.
+            A CNC machined bottle opener that prioritizes aesthetics and ergonomics—designed to live on a desk as a sculptural piece while still functioning reliably to open any bottle.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/winterwave')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/winterwave" label="Open Winter Wave project" />
         </div>
       </div>
     </div>
@@ -241,17 +213,10 @@ export function WinterWaveCursor() {
 }
 
 export function EggHolderCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/eggcover.jpg',
-          'Le Coquetier',
-          '/projects/eggholder',
-          router
-        )}
+        <PreviewCardImage src="/images/eggcover.jpg" alt="Le Coquetier" />
 
         <div className={previewTextColClass}>
           <h2
@@ -272,17 +237,7 @@ export function EggHolderCursor() {
           >
             An egg holder, designed, engineered, and fully hand manufactured for my ME 103 final project. Chosen as a showcase item at the Stanford Engineering Department's 100th Anniversary Event.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/eggholder')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/eggholder" label="Open Le Coquetier project" />
         </div>
       </div>
     </div>
@@ -290,17 +245,10 @@ export function EggHolderCursor() {
 }
 
 export function GearTrainsCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/images/gear1.jpg',
-          'Gear Trains',
-          '/projects/geartrains',
-          router
-        )}
+        <PreviewCardImage src="/images/gear1.jpg" alt="Gear Trains" />
 
         <div className={previewTextColClass}>
           <h2
@@ -321,17 +269,7 @@ export function GearTrainsCursor() {
           >
             A comprehensive gear train system designed and manufactured as part of ME 102 coursework, demonstrating mechanical engineering principles and manufacturing techniques.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/geartrains')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/geartrains" label="Open Gear Trains project" />
         </div>
       </div>
     </div>
@@ -339,17 +277,10 @@ export function GearTrainsCursor() {
 }
 
 export function AlexToolkitCursor() {
-  const router = useRouter();
-
   return (
     <div className="w-full py-2 md:py-0">
       <div className={previewRowClass}>
-        {previewCardImage(
-          '/toolkit1.jpg',
-          "Alex's Toolkit",
-          '/projects/toolkit',
-          router
-        )}
+        <PreviewCardImage src="/toolkit1.jpg" alt="Alex's Toolkit" />
 
         <div className={previewTextColClass}>
           <h2
@@ -370,17 +301,7 @@ export function AlexToolkitCursor() {
           >
             A personal toolkit project featuring handcrafted hammer and custom toolbox, showcasing traditional metalworking and woodworking techniques.
           </p>
-          <button
-            type="button"
-            className="w-16 h-16 rounded-full bg-gray-900 hover:bg-blue-600 transition-all duration-300 flex items-center justify-center group shadow-lg hover:shadow-xl transform hover:scale-105"
-            onMouseEnter={() => window.dispatchEvent(new CustomEvent('slider-pause'))}
-            onMouseLeave={() => window.dispatchEvent(new CustomEvent('slider-resume'))}
-            onClick={() => router.push('/projects/toolkit')}
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </button>
+          <ProjectRailLinkButton href="/projects/toolkit" label="Open Alex's Toolkit project" />
         </div>
       </div>
     </div>

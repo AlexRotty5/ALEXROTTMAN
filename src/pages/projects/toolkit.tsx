@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const TOOLKIT_SKILLS = ['Manufacturing Processes', 'DFM', 'CNC', 'Creativity'];
 
@@ -95,7 +96,7 @@ export default function ToolkitProject() {
                 variants={imageVariants}
                 className="flex-shrink-0 w-full lg:w-1/2 space-y-6"
               >
-                <img
+                <LightboxImage
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
@@ -103,7 +104,7 @@ export default function ToolkitProject() {
                   alt="Alex's Toolkit - Custom hammer and toolbox"
                   className="w-full h-auto rounded-lg shadow-2xl"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/toolkit3.jpg"
                   alt="Alex's Toolkit - Additional view"
                   className="w-full h-auto rounded-lg shadow-2xl"

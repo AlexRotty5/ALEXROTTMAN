@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const EGG_HOLDER_SKILLS = [
   'CAD',
@@ -96,7 +97,7 @@ const EggHolderPage = () => {
               className="relative"
               variants={imageVariants}
             >
-              <img
+              <LightboxImage
                 fetchPriority="high"
                 loading="eager"
                 decoding="async"
@@ -138,32 +139,32 @@ const EggHolderPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg3.jpg"
                   alt="Process 3"
                   className="w-full h-48 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg4.jpg"
                   alt="Process 4"
                   className="w-full h-48 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg5.jpg"
                   alt="Process 5"
                   className="w-full h-48 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg6.jpg"
                   alt="Process 6"
                   className="w-full h-48 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg7.jpg"
                   alt="Process 7"
                   className="w-full h-48 object-contain"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/egg8.jpg"
                   alt="Process 8"
                   className="w-full h-48 object-contain"
@@ -208,7 +209,7 @@ const EggHolderPage = () => {
               className="relative"
               variants={imageVariants}
             >
-              <img loading="lazy" decoding="async"
+              <LightboxImage loading="lazy" decoding="async"
                 src="/images/egg-cup.png"
                 alt="Final Product"
                 className="w-full h-96 object-contain mt-2"

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 import { ProjectSkillPills } from '@/components/ui/skill-pill';
+import { LightboxImage } from '@/components/ImageLightbox';
 
 const GEAR_TRAINS_SKILLS = [
   'Prototyping',
@@ -94,7 +95,7 @@ const GearTrainsPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img
+                <LightboxImage
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
@@ -102,7 +103,7 @@ const GearTrainsPage = () => {
                   alt="Gear Trains Project 3"
                   className="w-full h-80 object-cover"
                 />
-                <img loading="lazy" decoding="async"
+                <LightboxImage loading="lazy" decoding="async"
                   src="/images/gear1.jpg"
                   alt="Gear Trains Project"
                   className="w-full h-80 object-cover"
@@ -142,10 +143,10 @@ const GearTrainsPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img loading="lazy" decoding="async" src="/images/gear2.jpg" alt="Process 2" className="w-full h-52 object-contain " />
-                <img loading="lazy" decoding="async" src="/images/gear6.jpg" alt="Process 6" className="w-full h-52 object-contain " />
-                <img loading="lazy" decoding="async" src="/images/gear4.jpg" alt="Process 4" className="w-full h-52 object-contain " />
-                <img loading="lazy" decoding="async" src="/images/gear5.jpg" alt="Process 5" className="w-full h-52 object-contain " />
+                <LightboxImage loading="lazy" decoding="async" src="/images/gear2.jpg" alt="Process 2" className="w-full h-52 object-contain " />
+                <LightboxImage loading="lazy" decoding="async" src="/images/gear6.jpg" alt="Process 6" className="w-full h-52 object-contain " />
+                <LightboxImage loading="lazy" decoding="async" src="/images/gear4.jpg" alt="Process 4" className="w-full h-52 object-contain " />
+                <LightboxImage loading="lazy" decoding="async" src="/images/gear5.jpg" alt="Process 5" className="w-full h-52 object-contain " />
               </div>
             </motion.div>
 
