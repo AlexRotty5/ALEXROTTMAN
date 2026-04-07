@@ -21,6 +21,8 @@ const CONCEPT_IMAGES = [2, 3, 4, 5, 6, 7].map((n) => ({
 const PROTO_IMAGES = [8, 9, 10, 11, 12, 13].map((n) => ({
   src: `/images/Wave${n}.jpg`,
   alt: `Prototyping and iteration ${n - 7}`,
+  /* Wave10: important detail sits low in frame — anchor crop to the bottom, same tile size as others */
+  ...(n === 10 ? { cropClass: 'object-bottom' } : {}),
 }));
 
 const CNC_IMAGES = [14, 15, 16, 17, 18, 19, 20].map((n) => ({
@@ -31,31 +33,28 @@ const CNC_IMAGES = [14, 15, 16, 17, 18, 19, 20].map((n) => ({
 const imgTileClass =
   'w-full h-56 sm:h-64 object-cover rounded-md bg-stone-100';
 
-function ImageGrid({ items }: { items: { src: string; alt: string }[] }) {
+function ImageGrid({ items }: { items: { src: string; alt: string; cropClass?: string }[] }) {
   return (
     <div className="grid grid-cols-2 gap-4">
-      {items.map((item, i) => (
-        <div
-          key={item.src}
-          className={
-            items.length % 2 === 1 && i === items.length - 1
-              ? 'col-span-2 flex justify-center'
-              : ''
-          }
-        >
-          <img
-            loading="lazy"
-            decoding="async"
-            src={item.src}
-            alt={item.alt}
+      {items.map((item, i) => {
+        const crop = item.cropClass ?? 'object-center';
+        const tile =
+          items.length % 2 === 1 && i === items.length - 1
+            ? `${imgTileClass} max-w-2xl w-full ${crop}`
+            : `${imgTileClass} ${crop}`;
+        return (
+          <div
+            key={item.src}
             className={
               items.length % 2 === 1 && i === items.length - 1
-                ? `${imgTileClass} max-w-2xl w-full`
-                : imgTileClass
+                ? 'col-span-2 flex justify-center'
+                : ''
             }
-          />
-        </div>
-      ))}
+          >
+            <img loading="lazy" decoding="async" src={item.src} alt={item.alt} className={tile} />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -97,7 +96,7 @@ const WinterWavePage = () => {
         animate={isLoaded ? 'visible' : 'hidden'}
       >
         <motion.div className="mb-20" variants={itemVariants}>
-          <div className="grid md:grid-cols-2 gap-10 lg:gap-14 items-start">
+          <div className="grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.14fr)] gap-10 lg:gap-16 xl:gap-20 items-center">
             <div className="min-w-0">
               <motion.h1
                 className="text-6xl sm:text-7xl md:text-8xl font-black text-gray-900 mb-6 tracking-tight leading-none uppercase"
@@ -126,7 +125,7 @@ const WinterWavePage = () => {
 
             <motion.div
               variants={imageVariants}
-              className="w-full max-w-[220px] sm:max-w-[260px] justify-self-start md:justify-self-end md:mt-10 lg:mt-12 shrink-0"
+              className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl justify-self-center md:justify-self-end shrink-0 min-w-0"
             >
               <img
                 loading="eager"
@@ -134,7 +133,7 @@ const WinterWavePage = () => {
                 decoding="async"
                 src="/images/Wave1.jpg"
                 alt="Winter Wave bottle opener design"
-                className="w-full h-auto rounded-xl object-cover bg-stone-100 shadow-lg"
+                className="w-full h-auto rounded-2xl object-contain bg-gradient-to-b from-stone-50 to-stone-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] ring-1 ring-stone-200/90"
               />
             </motion.div>
           </div>

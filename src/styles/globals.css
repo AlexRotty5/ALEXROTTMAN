@@ -161,3 +161,28 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
 } 
+
+/* Subtle horizontal scrolling affordance (used on /physical-projects) */
+.horizontal-rail {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.55) rgba(226, 232, 240, 0.15);
+}
+
+.horizontal-rail::-webkit-scrollbar {
+  height: 10px;
+}
+
+.horizontal-rail::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.12);
+  border-radius: 9999px;
+}
+
+.horizontal-rail::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.55);
+  border-radius: 9999px;
+  border: 2px solid rgba(250, 249, 245, 0.96);
+}
+
+.horizontal-rail:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.75);
+}

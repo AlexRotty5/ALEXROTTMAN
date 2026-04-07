@@ -15,9 +15,9 @@ import { ViewportReveal } from '@/components/ViewportReveal';
 const PROJECTS = [
   { id: 'neal-feay', label: 'Neal Feay', Component: GaryLangCursor },
   { id: 'tempo-crank', label: 'Tempo Crank', Component: TempoCrankCursor },
+  { id: 'le-coquetier', label: 'Le Coquetier', Component: EggHolderCursor },
   { id: 'winter-wave', label: 'Winter Wave', Component: WinterWaveCursor },
   { id: 'retinac', label: 'Retinac', Component: PhysicalProjectsCursor },
-  { id: 'le-coquetier', label: 'Le Coquetier', Component: EggHolderCursor },
   { id: 'gear-trains', label: 'Gear Trains', Component: GearTrainsCursor },
   { id: 'toolkit', label: 'Toolkit', Component: AlexToolkitCursor },
 ] as const;
@@ -25,6 +25,7 @@ const PROJECTS = [
 const PhysicalProjects = () => {
   const router = useRouter();
   const [activeProject, setActiveProject] = useState(0);
+  const [showScrollHint, setShowScrollHint] = useState(true);
   const scrollRef = useRef<HTMLElement | null>(null);
   const activeRaf = useRef<number | null>(null);
 
@@ -43,6 +44,7 @@ const PhysicalProjects = () => {
     if (!el) return;
 
     const onScroll = () => {
+      setShowScrollHint((prev) => (prev ? false : prev));
       if (activeRaf.current != null) cancelAnimationFrame(activeRaf.current);
       activeRaf.current = requestAnimationFrame(() => {
         activeRaf.current = null;
@@ -63,6 +65,11 @@ const PhysicalProjects = () => {
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, [updateActiveFromScroll]);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setShowScrollHint(false), 2600);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -97,7 +104,7 @@ const PhysicalProjects = () => {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-[#FAF9F5]">
+    <div className="relative h-screen overflow-hidden bg-[#FAF9F5]">
       <div className="fixed top-6 left-6 z-50">
         <img
           src="/logo.png"
@@ -125,9 +132,35 @@ const PhysicalProjects = () => {
 
       <Navigation currentPage="physical-projects" isHeaderVisible={true} />
 
+      <div
+        className={`pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-500 ${
+          showScrollHint ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-full border border-gray-200/70 bg-white/70 backdrop-blur px-4 py-2 shadow-sm">
+          <svg
+            className="h-4 w-4 text-gray-500"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M8 7l-5 5 5 5" />
+            <path d="M16 7l5 5-5 5" />
+          </svg>
+          <span className="sr-only">Horizontal scroll</span>
+          <div className="w-20 h-1.5 rounded-full bg-gray-200/70 overflow-hidden">
+            <div className="h-full w-7 bg-gray-500/35 rounded-full" />
+          </div>
+        </div>
+      </div>
+
       <main
         ref={scrollRef}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [scrollbar-gutter:stable]"
+        className="horizontal-rail flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [scrollbar-gutter:stable]"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {PROJECTS.map(({ id, Component }, index) => (
@@ -141,7 +174,7 @@ const PhysicalProjects = () => {
               backgroundColor: '#FAF9F5',
             }}
           >
-            <div className="flex min-h-0 flex-1 items-center overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]">
+            <div className="flex min-h-0 flex-1 items-center overflow-y-hidden overflow-x-hidden [scrollbar-gutter:stable]">
               <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 xl:px-14">
                 {index === 0 ? (
                   <Component />
