@@ -1,11 +1,18 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/router';
 import Navigation from '@/components/Navigation';
+import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
+import { ProjectSkillPills } from '@/components/ui/skill-pill';
+
+const GEAR_TRAINS_SKILLS = [
+  'Prototyping',
+  'Additive Manufacturing',
+  'Mechanical Systems',
+  'Rapid Iteration',
+];
 
 const GearTrainsPage = () => {
-  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,14 +50,7 @@ const GearTrainsPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Logo */}
-      <div className="fixed top-8 left-8 z-50">
-        <img 
-          src="/logo.png" 
-          alt="Alex Rottman" 
-          className="h-12 w-auto"
-        />
-      </div>
+      <ProjectDetailBackNav />
 
       <Navigation currentPage="projects" isHeaderVisible={true} />
 
@@ -77,6 +77,9 @@ const GearTrainsPage = () => {
           >
             <p className="text-2xl font-semibold text-gray-900">ME 102 (Foundations of Product Realization) Final Project</p>
           </motion.div>
+          <motion.div variants={itemVariants} className="mt-8">
+            <ProjectSkillPills labels={GEAR_TRAINS_SKILLS} />
+          </motion.div>
         </motion.div>
 
         {/* The Project Section */}
@@ -92,11 +95,14 @@ const GearTrainsPage = () => {
             >
               <div className="grid grid-cols-2 gap-4">
                 <img
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
                   src="/images/gear3.jpeg"
                   alt="Gear Trains Project 3"
                   className="w-full h-80 object-cover"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/gear1.jpg"
                   alt="Gear Trains Project"
                   className="w-full h-80 object-cover"
@@ -136,10 +142,10 @@ const GearTrainsPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img src="/images/gear2.jpg" alt="Process 2" className="w-full h-52 object-contain " />
-                <img src="/images/gear6.jpg" alt="Process 6" className="w-full h-52 object-contain " />
-                <img src="/images/gear4.jpg" alt="Process 4" className="w-full h-52 object-contain " />
-                <img src="/images/gear5.jpg" alt="Process 5" className="w-full h-52 object-contain " />
+                <img loading="lazy" decoding="async" src="/images/gear2.jpg" alt="Process 2" className="w-full h-52 object-contain " />
+                <img loading="lazy" decoding="async" src="/images/gear6.jpg" alt="Process 6" className="w-full h-52 object-contain " />
+                <img loading="lazy" decoding="async" src="/images/gear4.jpg" alt="Process 4" className="w-full h-52 object-contain " />
+                <img loading="lazy" decoding="async" src="/images/gear5.jpg" alt="Process 5" className="w-full h-52 object-contain " />
               </div>
             </motion.div>
 
@@ -164,22 +170,6 @@ const GearTrainsPage = () => {
               </div>
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Back Button */}
-        <motion.div 
-          className="text-center mt-20"
-          variants={itemVariants}
-        >
-          <motion.button
-            onClick={() => router.back()}
-            className="group relative inline-flex items-center justify-center px-12 py-4 text-lg font-semibold text-gray-900 uppercase tracking-wide bg-white border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            ← Back to Projects
-          </motion.button>
         </motion.div>
       </motion.div>
     </div>

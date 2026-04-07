@@ -1,9 +1,12 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/router';
+import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Navigation from '@/components/Navigation';
+import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
+import { ProjectSkillPills } from '@/components/ui/skill-pill';
+
+const TOOLKIT_SKILLS = ['Manufacturing Processes', 'DFM', 'CNC', 'Creativity'];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,7 +38,6 @@ const imageVariants = {
 };
 
 export default function ToolkitProject() {
-  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -49,15 +51,7 @@ export default function ToolkitProject() {
         <meta name="description" content="A personal toolkit project featuring handcrafted hammer and custom toolbox, showcasing traditional metalworking and woodworking techniques." />
       </Head>
       
-      {/* Logo */}
-      <div className="fixed top-6 left-6 z-50">
-        <img 
-          src="/logo.png" 
-          alt="Alex Rottman Logo" 
-          className="h-12 w-auto cursor-pointer"
-          onClick={() => router.push('/')}
-        />
-      </div>
+      <ProjectDetailBackNav />
 
       <Navigation currentPage="toolkit" />
 
@@ -89,6 +83,9 @@ export default function ToolkitProject() {
               >
                 <p className="text-2xl font-semibold text-gray-900">Custom Handcrafted Tools</p>
               </motion.div>
+              <motion.div variants={itemVariants} className="mt-8">
+                <ProjectSkillPills labels={TOOLKIT_SKILLS} />
+              </motion.div>
             </motion.div>
 
             {/* Project Layout */}
@@ -99,11 +96,14 @@ export default function ToolkitProject() {
                 className="flex-shrink-0 w-full lg:w-1/2 space-y-6"
               >
                 <img
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
                   src="/toolkit2.jpg"
                   alt="Alex's Toolkit - Custom hammer and toolbox"
                   className="w-full h-auto rounded-lg shadow-2xl"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/toolkit3.jpg"
                   alt="Alex's Toolkit - Additional view"
                   className="w-full h-auto rounded-lg shadow-2xl"
@@ -147,21 +147,6 @@ export default function ToolkitProject() {
               </div>
             </div>
 
-            {/* Return to Projects Button */}
-            <motion.div 
-              variants={itemVariants}
-              className="mt-16 text-center"
-            >
-              <motion.button
-                onClick={() => router.back()}
-                className="group relative inline-flex items-center justify-center px-12 py-4 text-lg font-semibold text-gray-900 uppercase tracking-wide bg-white border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-                style={{ fontFamily: "'Inter', sans-serif" }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                ← Back to Projects
-              </motion.button>
-            </motion.div>
           </motion.div>
         </div>
       </div>

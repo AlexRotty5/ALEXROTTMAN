@@ -1,11 +1,18 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/router';
 import Navigation from '@/components/Navigation';
+import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
+import { ProjectSkillPills } from '@/components/ui/skill-pill';
+
+const RETINAC_SKILLS = [
+  'Startup Dev',
+  'Needfinding',
+  'Product Design/Engineering',
+  'Innovation',
+];
 
 const RetinacPage = () => {
-  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -57,20 +64,7 @@ const RetinacPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Logo */}
-      <motion.div 
-        className="fixed top-8 left-8 z-50"
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        <img 
-          src="/logo.png" 
-          alt="Alex Rottman" 
-          className="h-12 w-auto transition-all duration-300 ease-out hover:scale-105 cursor-pointer" 
-          onClick={() => router.push("/")} 
-        />
-      </motion.div>
+      <ProjectDetailBackNav />
 
       {/* Navigation */}
       <Navigation currentPage="projects" isHeaderVisible={true} />
@@ -99,6 +93,9 @@ const RetinacPage = () => {
           >
             <p className="text-2xl font-semibold text-gray-900">Co-founder and lead product engineer for developing medical device startup out of Stanford's Biodesign program</p>
           </motion.div>
+          <motion.div variants={itemVariants} className="mt-8">
+            <ProjectSkillPills labels={RETINAC_SKILLS} />
+          </motion.div>
         </motion.div>
 
         {/* The Team Section */}
@@ -113,6 +110,9 @@ const RetinacPage = () => {
               variants={imageVariants}
             >
               <img
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
                 src="/retinac1.jpg"
                 alt="The Team"
                 className="w-full h-80 object-cover"
@@ -233,14 +233,14 @@ const RetinacPage = () => {
               variants={imageVariants}
             >
               {/* Physical Prototypes */}
-              <img
+              <img loading="lazy" decoding="async"
                 src="/retinac2.jpg"
                 alt="Physical Prototypes"
                 className="max-w-full max-h-64 object-contain"
               />
               
               {/* Technical Drawings */}
-              <img
+              <img loading="lazy" decoding="async"
                 src="/retinac3.jpg"
                 alt="Technical Drawings"
                 className="max-w-full max-h-64 object-contain"
@@ -260,7 +260,7 @@ const RetinacPage = () => {
               className="relative flex flex-col justify-center items-center mt-8"
               variants={imageVariants}
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src="/retinac4.jpg"
                 alt="First Prototype"
                 className="max-w-full max-h-80 object-contain"
@@ -291,22 +291,6 @@ const RetinacPage = () => {
               </div>
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Back Button */}
-        <motion.div 
-          className="text-center mt-20"
-          variants={itemVariants}
-        >
-          <motion.button
-            onClick={() => router.back()}
-            className="group relative inline-flex items-center justify-center px-12 py-4 text-lg font-semibold text-gray-900 uppercase tracking-wide bg-white border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            ← Back to Projects
-          </motion.button>
         </motion.div>
       </motion.div>
 

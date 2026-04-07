@@ -7,6 +7,8 @@
 @layer base {
   html {
     font-family: 'Inter', sans-serif;
+    /* Hash links (#section) clear fixed headers; menu clicks use JS scroll without this offset */
+    scroll-padding-top: 6rem;
   }
   
   body {

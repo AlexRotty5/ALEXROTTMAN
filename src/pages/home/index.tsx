@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { motion, AnimatePresence } from "framer-motion";
 import WovenLightHero from '../../components/WovenLightHero';
-import IntroScreen from './intro';
-import ProductNav from './white-page';
+import IntroScreen from '@/components/IntroScreen';
 import Navigation from '@/components/Navigation';
 
 // Typewriter component
@@ -31,7 +29,6 @@ const Typewriter = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [textArrayIndex, setTextArrayIndex] = useState(0);
 
-  // Validate and process input text
   const textArray = Array.isArray(text) ? text : [text];
   const currentText = textArray[textArrayIndex] || "";
 
@@ -82,99 +79,33 @@ const Typewriter = ({
 };
 
 const HomePage = () => {
-  const [isHeaderOpen, setIsHeaderOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'intro'>('home');
   const router = useRouter();
 
-
-
-  // Close header when clicking outside
-  const handleOutsideClick = (e: React.MouseEvent) => {
-    if (isHeaderOpen) {
-      setIsHeaderOpen(false);
-    }
-  };
-
-
-
-  const handleProjectsClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsHeaderOpen(false);
-    setActiveSection('projects');
-  };
-
-  const handleHomeClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsHeaderOpen(false);
-    setActiveSection('home');
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Check URL parameters on mount and handle section routing
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Minimal delay to ensure this runs after other effects
-      setTimeout(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const section = urlParams.get('section');
-        
-        if (section === 'projects') {
-          setActiveSection('intro-projects');
-          // Clean up the URL
-          window.history.replaceState({}, '', '/');
-        }
-      }, 10);
-    }
+    if (typeof window === 'undefined') return;
+    const id = window.setTimeout(() => {
+      const section = new URLSearchParams(window.location.search).get('section');
+      if (section === 'projects') {
+        router.push('/physical-projects');
+        window.history.replaceState({}, '', '/');
+      }
+    }, 10);
+    return () => window.clearTimeout(id);
+  }, [router]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onResetHome = () => {
+      setActiveSection('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('portfolio-reset-home', onResetHome);
+    return () => window.removeEventListener('portfolio-reset-home', onResetHome);
   }, []);
 
-  // Track scroll position to update active section and close nav bar
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-    
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      
-      // Close nav bar if scrolling down and it's open
-      if (scrollY > lastScrollY && isHeaderOpen) {
-        setIsHeaderOpen(false);
-      }
-      
-      // Update last scroll position
-      lastScrollY = scrollY;
-      
-      // Only update active section if not in intro mode and not manually set to projects
-      // Also check if we have a URL parameter that should take precedence
-      const urlParams = new URLSearchParams(window.location.search);
-      const section = urlParams.get('section');
-      
-      if (section === 'projects') {
-        setActiveSection('intro-projects');
-        window.history.replaceState({}, '', '/');
-        return;
-      }
-      
-      if (activeSection !== 'intro' && activeSection !== 'intro-projects' && activeSection !== 'projects') {
-        if (scrollY > windowHeight * 1.5) {
-          setActiveSection('projects');
-        } else {
-          setActiveSection('home');
-        }
-      }
-    };
-
-    // Call once on mount to set initial state
-    handleScroll();
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHeaderOpen, activeSection]);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50" onClick={handleOutsideClick}>
-      
-      {/* Logo */}
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50">
       {activeSection === 'home' && (
         <div className="fixed top-6 left-6 z-50">
           <img src="/whitelogo.png" alt="Alex Rottman" className="h-16 w-auto brightness-110 hue-rotate-15 saturate-75 transition-transform duration-300 ease-in-out hover:scale-110 cursor-pointer" onClick={() => router.push("/")} />
@@ -183,9 +114,6 @@ const HomePage = () => {
 
       <Navigation currentPage="home" isHeaderVisible={true} />
 
-
-
-      {/* Hero Section with Alex Rottman */}
       <section className="relative h-screen flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <WovenLightHero shouldAnimate={true} onIntroComplete={() => {}} showText={false} />
@@ -233,10 +161,9 @@ const HomePage = () => {
               letterSpacing: '-0.1em'
             }}
           >
-            <span className="blue-gradient-text">Product Engineer</span>
+            <span className="blue-gradient-text">ENGINEERING PORTFOLIO</span>
           </p>
           
-          {/* Enter Button */}
           <button
             onClick={() => setActiveSection('intro')}
             className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-900 uppercase tracking-[-0.1em] bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -250,29 +177,12 @@ const HomePage = () => {
         </div>
       </section>
 
-
-
-      {/* Intro Screen */}
       <IntroScreen 
         isActive={activeSection === 'intro'} 
-        activeSection={activeSection}
-        onBack={() => setActiveSection('home')}
-        onComplete={() => setActiveSection('intro-projects')}
-      />
-
-      {/* Product Navigation */}
-      <ProductNav 
-        isActive={activeSection === 'projects' || activeSection === 'intro-projects'} 
-        onBack={() => {
-          if (activeSection === 'intro-projects') {
-            setActiveSection('intro');
-          } else if (activeSection === 'projects') {
-            setActiveSection('home');
-          }
-        }}
+        onComplete={() => router.push('/physical-projects')}
       />
     </div>
   );
 };
 
-export default HomePage; 
+export default HomePage;

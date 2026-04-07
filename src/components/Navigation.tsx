@@ -12,13 +12,9 @@ const Navigation: React.FC<NavigationProps> = ({
   isHeaderVisible = true 
 }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, width: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
   const menuItems = [
@@ -36,8 +32,7 @@ const Navigation: React.FC<NavigationProps> = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       ),
-      label: "Projects",
-      hasDropdown: true
+      label: "Projects"
     },
     {
       icon: (props: React.SVGProps<SVGSVGElement>) => (
@@ -49,48 +44,17 @@ const Navigation: React.FC<NavigationProps> = ({
     }
   ];
 
-  const projectDropdownItems = [
-    { label: "Physical", route: "/physical-projects" },
-    { label: "Digital Dev", route: "/visual-projects" },
-  ];
-
   const handleMenuClick = (index: number) => {
     if (index === 0) {
-      router.push('/');
+      if (typeof window !== 'undefined' && router.pathname === '/') {
+        window.dispatchEvent(new CustomEvent('portfolio-reset-home'));
+      }
+      void router.push('/');
     } else if (index === 1) {
-      // Projects button - do nothing on click, handled by hover
+      router.push('/physical-projects');
     } else if (index === 2) {
       router.push('/about');
     }
-  };
-
-  const handleProjectDropdownClick = (route: string) => {
-    router.push(route);
-    setShowProjectsDropdown(false);
-  };
-
-  const handleProjectsMouseEnter = () => {
-    // Clear any pending hide timeout
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-      hideTimeoutRef.current = null;
-    }
-    
-    // Set timeout to show dropdown after 0.2 seconds
-    showTimeoutRef.current = setTimeout(() => {
-      setShowProjectsDropdown(true);
-    }, 200); // 0.2 seconds = 200ms
-  };
-
-  const handleProjectsMouseLeave = () => {
-    // Clear any pending show timeout
-    if (showTimeoutRef.current) {
-      clearTimeout(showTimeoutRef.current);
-      showTimeoutRef.current = null;
-    }
-    
-    // Hide dropdown immediately when leaving
-    setShowProjectsDropdown(false);
   };
 
   const getActiveButtonIndex = () => {
@@ -99,7 +63,6 @@ const Navigation: React.FC<NavigationProps> = ({
         return 0;
       case 'projects':
       case 'physical-projects':
-      case 'visual-projects':
         return 1;
       case 'about':
         return 2;
@@ -125,18 +88,6 @@ const Navigation: React.FC<NavigationProps> = ({
     }
   }, [activeIndex]);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (showTimeoutRef.current) {
-        clearTimeout(showTimeoutRef.current);
-      }
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-    };
-  }, []);
-
   if (!isHeaderVisible) {
     return null;
   }
@@ -144,7 +95,7 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <div className="fixed top-8 right-6 z-50">
       <AnimatePresence>
-        {activeIndex !== null && activeIndex !== 1 && (
+        {activeIndex !== null && (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -168,35 +119,6 @@ const Navigation: React.FC<NavigationProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Projects Dropdown */}
-      <AnimatePresence>
-        {showProjectsDropdown && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute right-0 top-[41px] pointer-events-auto z-50"
-            ref={dropdownRef}
-            onMouseEnter={handleProjectsMouseEnter}
-            onMouseLeave={handleProjectsMouseLeave}
-          >
-            <div className="bg-white/95 backdrop-blur border border-gray-200/50 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_8px_16px_-4px_rgba(0,0,0,0.1)] rounded-lg overflow-hidden min-w-[140px]">
-              {projectDropdownItems.map((item, index) => (
-                <button
-                  key={index}
-                  className="w-full px-4 py-2 text-left text-[13px] font-medium uppercase tracking-[-0.1em] text-gray-900 hover:bg-gray-100/80 transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                  onClick={() => handleProjectDropdownClick(item.route)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
       <div 
         ref={menuRef}
         className="h-10 px-1.5 inline-flex justify-center items-center gap-[3px] overflow-hidden z-10 rounded-full bg-white/95 backdrop-blur border border-gray-200/50 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_8px_16px_-4px_rgba(0,0,0,0.1)]"
@@ -207,24 +129,8 @@ const Navigation: React.FC<NavigationProps> = ({
             className={`w-8 h-8 px-3 py-1 rounded-full flex justify-center items-center gap-2 transition-colors ${
               index === getActiveButtonIndex() ? 'bg-blue-100' : 'hover:bg-gray-100/80'
             }`}
-            onMouseEnter={() => {
-              if (index === 1) {
-                // Projects button - show dropdown after 0.2s hover
-                handleProjectsMouseEnter();
-              } else {
-                // Other buttons - show tooltip immediately
-                setActiveIndex(index);
-              }
-            }}
-            onMouseLeave={() => {
-              if (index === 1) {
-                // Projects button - hide dropdown immediately
-                handleProjectsMouseLeave();
-              } else {
-                // Other buttons - hide tooltip immediately
-                setActiveIndex(null);
-              }
-            }}
+            onMouseEnter={() => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(null)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

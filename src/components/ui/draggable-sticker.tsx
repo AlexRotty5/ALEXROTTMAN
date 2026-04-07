@@ -7,28 +7,27 @@ interface DraggableStickerProps {
   onDragEnd?: (x: number, y: number, skill: string) => void;
 }
 
-// Define different colors for rounded rectangle stickers
 const stickerConfigs = [
-  { bgColor: '#fef3c7', textColor: '#92400e' }, // Light yellow background, dark brown text
-  { bgColor: '#fecaca', textColor: '#991b1b' }, // Light red background, dark red text
-  { bgColor: '#dbeafe', textColor: '#1e40af' }, // Light blue background, dark blue text
-  { bgColor: '#d1fae5', textColor: '#065f46' }, // Light green background, dark green text
-  { bgColor: '#fce7f3', textColor: '#be185d' }, // Light pink background, dark pink text
-  { bgColor: '#e9d5ff', textColor: '#6b21a8' }, // Light purple background, dark purple text
-  { bgColor: '#fed7aa', textColor: '#c2410c' }, // Light orange background, dark orange text
-  { bgColor: '#cffafe', textColor: '#0e7490' }, // Light cyan background, dark cyan text
+  { bgColor: '#fef3c7', textColor: '#92400e' },
+  { bgColor: '#fecaca', textColor: '#991b1b' },
+  { bgColor: '#dbeafe', textColor: '#1e40af' },
+  { bgColor: '#d1fae5', textColor: '#065f46' },
+  { bgColor: '#fce7f3', textColor: '#be185d' },
+  { bgColor: '#e9d5ff', textColor: '#6b21a8' },
+  { bgColor: '#fed7aa', textColor: '#c2410c' },
+  { bgColor: '#cffafe', textColor: '#0e7490' },
 ];
 
-export const DraggableSticker: React.FC<DraggableStickerProps> = ({ 
-  skill, 
-  index, 
-  onDragEnd 
+export const DraggableSticker: React.FC<DraggableStickerProps> = ({
+  skill,
+  index,
+  onDragEnd,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [rotation, setRotation] = useState(Math.random() * 20 - 10);
   const config = stickerConfigs[index % stickerConfigs.length];
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (event: unknown, info: { point: { x: number; y: number } }) => {
     setIsDragging(false);
     if (onDragEnd) {
       onDragEnd(info.point.x, info.point.y, skill);
@@ -43,44 +42,44 @@ export const DraggableSticker: React.FC<DraggableStickerProps> = ({
       dragConstraints={false}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={handleDragEnd}
-      initial={{ 
-        opacity: 0, 
+      initial={{
+        opacity: 0,
         scale: 0.3,
         x: 0,
-        y: 0
+        y: 0,
       }}
-      animate={{ 
-        opacity: 1, 
+      animate={{
+        opacity: 1,
         scale: 1,
         x: 0,
         y: 0,
-        zIndex: isDragging ? 1000 : index + 1
+        zIndex: isDragging ? 1000 : index + 1,
       }}
-      transition={{ 
-        duration: 0.4, 
-        delay: index * 0.1, // Rapid succession - 0.1s between each
-        type: "spring",
+      transition={{
+        duration: 0.4,
+        delay: index * 0.08,
+        type: 'spring',
         stiffness: 400,
-        damping: 25
+        damping: 25,
       }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.05,
-        transition: { duration: 0.2 }
+        transition: { duration: 0.2 },
       }}
       whileTap={{ scale: 0.95 }}
-      className="fixed cursor-grab active:cursor-grabbing select-none"
+      className="relative cursor-grab active:cursor-grabbing select-none touch-none inline-block"
       style={{
         fontFamily: "'Inter', sans-serif",
-        filter: isDragging ? 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
-        right: `${20 + (index * 25)}px`, // Increased spacing from 15px to 25px
-        bottom: `${20 + (index * 8)}px`, // Increased spacing from 3px to 8px
+        filter: isDragging
+          ? 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))'
+          : 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
+        rotate: rotation,
         userSelect: 'none',
         WebkitUserSelect: 'none',
         MozUserSelect: 'none',
         msUserSelect: 'none',
         WebkitTouchCallout: 'none',
         WebkitTapHighlightColor: 'transparent',
-        rotate: rotation,
       }}
     >
       <div
@@ -98,7 +97,7 @@ export const DraggableSticker: React.FC<DraggableStickerProps> = ({
           msUserSelect: 'none',
         }}
       >
-        <span 
+        <span
           className="relative z-10 text-xs font-medium uppercase tracking-wide text-center"
           style={{
             fontFamily: "'Inter', sans-serif",
@@ -108,7 +107,7 @@ export const DraggableSticker: React.FC<DraggableStickerProps> = ({
             msUserSelect: 'none',
             lineHeight: '1.2',
             wordBreak: 'break-word',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
           }}
         >
           {skill}

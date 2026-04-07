@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from 'next/image';
 import Navigation from '@/components/Navigation';
 import { DraggableSticker } from '@/components/ui/draggable-sticker';
@@ -91,13 +91,13 @@ const AboutPage = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="w-full max-w-7xl mx-auto"
         >
-          <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-start w-full">
-            {/* Profile Image */}
+          <div className="flex flex-col md:flex-row md:items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-16 w-full">
+            {/* Photo + stickers column — left */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="flex-shrink-0"
+              className="w-full md:w-auto flex-shrink-0 order-1 flex flex-col gap-6"
             >
               <div className="relative">
                 <div className="w-64 h-80 sm:w-80 sm:h-[400px] md:w-96 md:h-[500px] lg:w-[400px] lg:h-[600px] xl:w-[450px] xl:h-[650px] rounded-lg overflow-hidden shadow-2xl bg-gray-200 relative">
@@ -111,14 +111,31 @@ const AboutPage = () => {
                   />
                 </div>
               </div>
+
+              <div className="w-full max-w-[min(100%,28rem)] sm:max-w-sm md:max-w-md lg:max-w-[400px] xl:max-w-[450px]">
+                <div className="flex flex-wrap gap-2 justify-start">
+                  {['CAD Modeling', 'CAM/CNC', 'Prototyping', 'Manufacturing Processes', 'Product Design', 'Tolerancing & Dimensioning', 'DFM/DFA', 'Materials Science', 'Solution-Oriented', 'Process Optimization (PFMEA/ DOE)', 'Project Management'].map((skill, index) => (
+                    <DraggableSticker
+                      key={skill}
+                      skill={skill}
+                      index={index}
+                    />
+                  ))}
+                </div>
+                {showDragText && (
+                  <p className="text-sm text-gray-600 mt-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Drag the stickers!
+                  </p>
+                )}
+              </div>
             </motion.div>
 
-            {/* Content */}
+            {/* Text + contact — right of photo */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-              className="flex-1 space-y-4 sm:space-y-6"
+              className="flex-1 min-w-0 space-y-4 sm:space-y-6 order-2 md:pl-2"
             >
               <div>
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 uppercase tracking-[-0.1em]" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -127,35 +144,17 @@ const AboutPage = () => {
               </div>
 
               <div className="space-y-3 sm:space-y-4 text-gray-700 leading-relaxed">
-                <p className="text-sm sm:text-base">
-                  Growing up in Santa Barbara, I developed a love for building and problem-solving that has grown into a career path in product engineering. Now, as a Stanford University student pursuing a B.S. in Physical Design and Manufacturing, I'm driven by the challenge of turning ideas into functional, well-engineered products.
-                </p>
-                
-                <p className="text-sm sm:text-base">
-                  Over the past 4 years as a student-athlete, I've deepened my skills in design and manufacturing, from needfinding to process optimization. I've built a strong foundation in CAD modeling, prototyping, and efficient manufacturing through hands-on work in Stanford's Product Realization Lab, where I've spent my time bridging thought out engineering plans with physical fabrication.
+                <p className="text-[13px] sm:text-[15px]">
+                  Growing up in Santa Barbara, California, I was shaped by two things: the outdoors and building. Whether I was surfing, backpacking, or kayaking with friends, or in the garage piecing together cardboard arcade machines, skateboards, and surfboards — I was happiest when I was either out in the world or making something with my hands.
                 </p>
 
-                <p className="text-sm sm:text-base">
-                  I've also gained valuable experience through class projects and internships, where I contributed to product engineering, precision manufacturing and optimizing supply chain process with statistical analysis. The problem-solver in me loves to intentionally increase efficiency within the workspace.
+                <p className="text-[13px] sm:text-[15px]">
+                  Now, as a senior at Stanford pursuing a B.S. in Product Design with a focus in physical products and manufacturing, that love for building has only grown. Alongside my studies, I've spent the last four years competing as a Division I volleyball player at Stanford and representing USA volleyball internationally. My undergrad has been defined by learning the full design process — from software tools to everything the machine shop has to offer — and gaining real industry experience manufacturing at scale.
                 </p>
 
-                <p className="text-sm sm:text-base">
-                  Looking forward, I want to pursue a career in product engineering—working at the intersection of design, manufacturing, and engineering to bring innovative, functional products to life. My goal is to continue to develop my technical skills and eventually contribute to a meaningful mission and purpose. Leveraging new technology and changing how products are made. To create products that are efficient, impactful, and thoughtfully designed.
+                <p className="text-[13px] sm:text-[15px]">
+                  As my volleyball career winds down, I'm excited to dive into a new chapter. I've become genuinely excited to contribute to the defense industry — from researching BLDC motors for drone propulsion systems to exploring robotics and control systems more broadly. Next year, I'll be pursuing a Master's in Mechanical Engineering at UC Berkeley with a focus in robotics, and I'm hoping to gain industry experience before then. After grad school, I want to keep building — with a much more developed skillset.
                 </p>
-              </div>
-
-              {/* Draggable Skills Stickers - Can be dragged anywhere on screen */}
-              <div className="pt-2">
-                {showDragText && <p className="text-sm text-gray-600 mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Drag the stickers!
-                </p>}
-                {['CAD Modeling', 'Prototyping', 'Manufacturing Processes', 'Product Design', 'Tolerancing & Dimensioning', 'DFM/DFA', 'Materials Science', 'Solution-Oriented', 'Process Optimization (PFMEA/ DOE)', 'Project Management'].map((skill, index) => (
-                  <DraggableSticker
-                    key={skill}
-                    skill={skill}
-                    index={index}
-                  />
-                ))}
               </div>
 
               {/* Contact Section */}

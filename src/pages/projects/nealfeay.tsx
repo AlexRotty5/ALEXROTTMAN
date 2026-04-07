@@ -1,11 +1,19 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/router';
 import Navigation from '@/components/Navigation';
+import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
+import { ProjectSkillPills } from '@/components/ui/skill-pill';
+
+const NEAL_FEAY_SKILLS = [
+  'CAD',
+  'DFM',
+  'Manufacturing Processes',
+  'Statistical Optimization',
+  'Project/Supply Chain Management',
+];
 
 const NealFeayPage = () => {
-  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,20 +51,7 @@ const NealFeayPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Logo */}
-      <motion.div 
-        className="fixed top-8 left-8 z-50"
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        <img 
-          src="/logo.png" 
-          alt="Alex Rottman" 
-          className="h-12 w-auto transition-all duration-300 ease-out hover:scale-105 cursor-pointer" 
-          onClick={() => router.push("/")} 
-        />
-      </motion.div>
+      <ProjectDetailBackNav />
 
       {/* Navigation */}
       <Navigation currentPage="projects" isHeaderVisible={true} />
@@ -94,6 +89,9 @@ const NealFeayPage = () => {
               @https://www.nealfeay.com
             </a>
           </motion.div>
+          <motion.div variants={itemVariants} className="mt-8">
+            <ProjectSkillPills labels={NEAL_FEAY_SKILLS} />
+          </motion.div>
         </motion.div>
 
         {/* Divider */}
@@ -116,21 +114,24 @@ const NealFeayPage = () => {
               variants={imageVariants}
             >
               <img
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
                 src="/images/gary1.jpg"
                 alt="Gary Lang Sample Piece 1"
                 className="w-full h-full object-cover"
               />
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/gray2.jpg"
                 alt="Gary Lang Sample Piece 2"
                 className="w-full h-full object-cover"
               />
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/gary3.jpg"
                 alt="Gary Lang Sample Piece 3"
                 className="w-full h-full object-cover"
               />
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/gary4.jpg"
                 alt="Gary Lang Sample Piece 4"
                 className="w-full h-full object-cover"
@@ -187,13 +188,13 @@ const NealFeayPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/2201.jpg"
                   alt="220 Art Installation 1"
                   className="w-full h-80 object-contain"
                 />
                 <div>
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/images/2202.jpg"
                     alt="220 Art Installation 2"
                     className="w-full h-80 object-contain"
@@ -203,7 +204,7 @@ const NealFeayPage = () => {
                   </p>
                 </div>
               </div>
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/2203.jpeg"
                 alt="220 Art Installation 3"
                 className="w-full h-80 object-contain"
@@ -267,18 +268,18 @@ const NealFeayPage = () => {
               className="space-y-4 flex flex-col justify-center"
               variants={imageVariants}
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/pga1.jpeg"
                 alt="PGA Championship Trophy"
                 className="w-full h-80 object-contain"
               />
               <div className="grid grid-cols-2 gap-4">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/pga2.jpeg"
                   alt="PGA Trophy CAD Model 1"
                   className="w-full h-64 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/pga3.jpeg"
                   alt="PGA Trophy CAD Model 2"
                   className="w-full h-64 object-contain"
@@ -317,22 +318,6 @@ const NealFeayPage = () => {
               </div>
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Back Button */}
-        <motion.div 
-          className="text-center mt-20"
-          variants={itemVariants}
-        >
-          <motion.button
-            onClick={() => router.back()}
-            className="group relative inline-flex items-center justify-center px-12 py-4 text-lg font-semibold text-gray-900 uppercase tracking-wide bg-white border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            ← Back to Projects
-          </motion.button>
         </motion.div>
       </motion.div>
     </div>

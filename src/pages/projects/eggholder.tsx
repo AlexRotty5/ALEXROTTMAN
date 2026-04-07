@@ -1,11 +1,19 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/router';
 import Navigation from '@/components/Navigation';
+import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
+import { ProjectSkillPills } from '@/components/ui/skill-pill';
+
+const EGG_HOLDER_SKILLS = [
+  'CAD',
+  'Materials Knowledge',
+  'Creativity',
+  'Manufacturing Processes',
+  'DFM',
+];
 
 const EggHolderPage = () => {
-  const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,20 +51,7 @@ const EggHolderPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Logo */}
-      <motion.div 
-        className="fixed top-8 left-8 z-50"
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        <img 
-          src="/logo.png" 
-          alt="Alex Rottman" 
-          className="h-12 w-auto transition-all duration-300 ease-out hover:scale-105 cursor-pointer" 
-          onClick={() => router.push("/")} 
-        />
-      </motion.div>
+      <ProjectDetailBackNav />
 
       {/* Navigation */}
       <Navigation currentPage="projects" isHeaderVisible={true} />
@@ -85,6 +80,9 @@ const EggHolderPage = () => {
           >
             <p className="text-2xl font-semibold text-gray-900">ME 103 (Product Realization: Design and Making) Final Project</p>
           </motion.div>
+          <motion.div variants={itemVariants} className="mt-8">
+            <ProjectSkillPills labels={EGG_HOLDER_SKILLS} />
+          </motion.div>
         </motion.div>
 
         {/* The Project Section */}
@@ -99,6 +97,9 @@ const EggHolderPage = () => {
               variants={imageVariants}
             >
               <img
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
                 src="/images/egg1.jpg"
                 alt="Le Coquetier"
                 className="w-full h-96 object-contain"
@@ -137,32 +138,32 @@ const EggHolderPage = () => {
               variants={imageVariants}
             >
               <div className="grid grid-cols-2 gap-4">
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg3.jpg"
                   alt="Process 3"
                   className="w-full h-48 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg4.jpg"
                   alt="Process 4"
                   className="w-full h-48 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg5.jpg"
                   alt="Process 5"
                   className="w-full h-48 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg6.jpg"
                   alt="Process 6"
                   className="w-full h-48 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg7.jpg"
                   alt="Process 7"
                   className="w-full h-48 object-contain"
                 />
-                <img
+                <img loading="lazy" decoding="async"
                   src="/images/egg8.jpg"
                   alt="Process 8"
                   className="w-full h-48 object-contain"
@@ -207,7 +208,7 @@ const EggHolderPage = () => {
               className="relative"
               variants={imageVariants}
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/egg-cup.png"
                 alt="Final Product"
                 className="w-full h-96 object-contain mt-2"
@@ -232,22 +233,6 @@ const EggHolderPage = () => {
               </div>
             </motion.div>
           </div>
-        </motion.div>
-
-        {/* Back Button */}
-        <motion.div 
-          className="text-center mt-20"
-          variants={itemVariants}
-        >
-          <motion.button
-            onClick={() => router.back()}
-            className="group relative inline-flex items-center justify-center px-12 py-4 text-lg font-semibold text-gray-900 uppercase tracking-wide bg-white border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-            style={{ fontFamily: "'Inter', sans-serif" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            ← Back to Projects
-          </motion.button>
         </motion.div>
       </motion.div>
     </div>
