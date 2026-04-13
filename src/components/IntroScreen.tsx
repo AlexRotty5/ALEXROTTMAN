@@ -217,7 +217,7 @@ const IntroScreen = ({ isActive, onComplete }: IntroScreenProps) => {
       <AnimatePresence>
         {showArrow && (
           <motion.div
-            className="absolute bottom-10 left-1/2 z-50 -translate-x-1/2 flex flex-col items-center gap-2"
+            className="absolute bottom-10 left-1/2 z-50 -translate-x-1/2 flex flex-col items-center gap-3"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
@@ -227,7 +227,7 @@ const IntroScreen = ({ isActive, onComplete }: IntroScreenProps) => {
               type="button"
               aria-label="Continue to projects"
               onClick={handleArrowClick}
-              className="group relative flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/[0.07] text-white shadow-[0_4px_24px_-4px_rgba(15,23,42,0.45)] backdrop-blur-md transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out hover:border-white/35 hover:bg-white/[0.12] hover:shadow-[0_8px_32px_-6px_rgba(30,58,138,0.35)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900"
+              className="group relative flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/[0.07] text-white shadow-[0_4px_28px_-4px_rgba(15,23,42,0.45)] backdrop-blur-md transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out hover:border-white/35 hover:bg-white/[0.12] hover:shadow-[0_10px_36px_-6px_rgba(30,58,138,0.38)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900 sm:h-[4.5rem] sm:w-[4.5rem]"
               {...(!reduceMotion
                 ? {
                     animate: { y: [0, 4, 0] },
@@ -240,7 +240,7 @@ const IntroScreen = ({ isActive, onComplete }: IntroScreenProps) => {
                 : {})}
             >
               <svg
-                className="h-5 w-5 translate-y-px opacity-90 transition-opacity duration-200 group-hover:opacity-100"
+                className="h-7 w-7 translate-y-px opacity-90 transition-opacity duration-200 group-hover:opacity-100 sm:h-8 sm:w-8"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -253,7 +253,7 @@ const IntroScreen = ({ isActive, onComplete }: IntroScreenProps) => {
               </svg>
             </motion.button>
             <span
-              className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/45"
+              className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 sm:text-sm"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Projects

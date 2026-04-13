@@ -165,11 +165,12 @@ const HomePage = () => {
           </p>
           
           <button
+            type="button"
             onClick={() => setActiveSection('intro')}
-            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-900 uppercase tracking-[-0.1em] bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="inline-flex items-center justify-center rounded-md border border-white/40 bg-white/70 px-5 py-2 text-sm font-medium uppercase tracking-[-0.1em] text-gray-900 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-white/60 hover:bg-white hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             style={{
               fontFamily: "'Inter', sans-serif",
-              letterSpacing: '-0.1em'
+              letterSpacing: '-0.1em',
             }}
           >
             Enter

@@ -22,10 +22,32 @@ const PROJECTS = [
   { id: 'toolkit', label: 'Toolkit', Component: AlexToolkitCursor },
 ] as const;
 
+const LAST_PROJECT_INDEX = PROJECTS.length - 1;
+
+function RailChevron({ direction }: { direction: 'left' | 'right' }) {
+  return (
+    <svg
+      className="h-16 w-16 text-stone-300 transition-colors duration-300 ease-out group-hover:text-sky-600/90 sm:h-24 sm:w-24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.25}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {direction === 'right' ? (
+        <path d="M9 6l6 6-6 6" />
+      ) : (
+        <path d="M15 6l-6 6 6 6" />
+      )}
+    </svg>
+  );
+}
+
 const PhysicalProjects = () => {
   const router = useRouter();
   const [activeProject, setActiveProject] = useState(0);
-  const [showScrollHint, setShowScrollHint] = useState(true);
   const scrollRef = useRef<HTMLElement | null>(null);
   const activeRaf = useRef<number | null>(null);
 
@@ -44,7 +66,6 @@ const PhysicalProjects = () => {
     if (!el) return;
 
     const onScroll = () => {
-      setShowScrollHint((prev) => (prev ? false : prev));
       if (activeRaf.current != null) cancelAnimationFrame(activeRaf.current);
       activeRaf.current = requestAnimationFrame(() => {
         activeRaf.current = null;
@@ -65,11 +86,6 @@ const PhysicalProjects = () => {
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, [updateActiveFromScroll]);
-
-  useEffect(() => {
-    const t = window.setTimeout(() => setShowScrollHint(false), 2600);
-    return () => window.clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -97,11 +113,30 @@ const PhysicalProjects = () => {
     container.scrollTo({ left: index * w, behavior: 'smooth' });
   }, []);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === 'ArrowRight' && activeProject < LAST_PROJECT_INDEX) {
+        e.preventDefault();
+        scrollToProject(activeProject + 1);
+      } else if (e.key === 'ArrowLeft' && activeProject > 0) {
+        e.preventDefault();
+        scrollToProject(activeProject - 1);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeProject, scrollToProject]);
+
   const getProjectNameStyle = (projectIndex: number) => {
     return `text-sm font-medium uppercase tracking-[-0.05em] transition-colors duration-300 cursor-pointer hover:text-gray-800 ${
       activeProject === projectIndex ? 'text-gray-900' : 'text-gray-400'
     }`;
   };
+
+  const canGoLeft = activeProject > 0;
+  const canGoRight = activeProject < LAST_PROJECT_INDEX;
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#FAF9F5]">
@@ -132,31 +167,32 @@ const PhysicalProjects = () => {
 
       <Navigation currentPage="physical-projects" isHeaderVisible={true} />
 
-      <div
-        className={`pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-50 transition-opacity duration-500 ${
-          showScrollHint ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <div className="flex items-center gap-3 rounded-full border border-gray-200/70 bg-white/70 backdrop-blur px-4 py-2 shadow-sm">
-          <svg
-            className="h-4 w-4 text-gray-500"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
+      {/* Side rails: first slide = right only; middle = both; last = left only */}
+      {canGoLeft && (
+        <div className="pointer-events-none fixed inset-y-0 left-0 z-[44] flex w-20 items-center justify-center pl-2 sm:w-28 sm:pl-4">
+          <button
+            type="button"
+            aria-label="Previous project"
+            onClick={() => scrollToProject(activeProject - 1)}
+            className="group pointer-events-auto flex items-center justify-center rounded-md p-2 text-stone-300 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF9F5]"
           >
-            <path d="M8 7l-5 5 5 5" />
-            <path d="M16 7l5 5-5 5" />
-          </svg>
-          <span className="sr-only">Horizontal scroll</span>
-          <div className="w-20 h-1.5 rounded-full bg-gray-200/70 overflow-hidden">
-            <div className="h-full w-7 bg-gray-500/35 rounded-full" />
-          </div>
+            <RailChevron direction="left" />
+          </button>
         </div>
-      </div>
+      )}
+
+      {canGoRight && (
+        <div className="pointer-events-none fixed inset-y-0 right-0 z-[44] flex w-20 items-center justify-center pr-2 sm:w-28 sm:pr-4">
+          <button
+            type="button"
+            aria-label="Next project"
+            onClick={() => scrollToProject(activeProject + 1)}
+            className="group pointer-events-auto flex items-center justify-center rounded-md p-2 text-stone-300 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF9F5]"
+          >
+            <RailChevron direction="right" />
+          </button>
+        </div>
+      )}
 
       <main
         ref={scrollRef}
