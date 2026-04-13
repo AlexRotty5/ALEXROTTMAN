@@ -223,21 +223,29 @@ const AboutPage = () => {
                   <span>Resume</span>
                 </button>
 
-                {/* Email Display */}
-                <div className="group relative">
-                  <div 
-                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 text-gray-700 hover:text-gray-900 transition-colors duration-200 cursor-pointer"
-                    style={{ fontFamily: "'Inter', sans-serif" }}
-                    onClick={() => {
-                      navigator.clipboard.writeText('alexrott@stanford.edu');
-                      // You could add a toast notification here if you want
-                    }}
-                  >
-                    <span className="font-medium text-sm sm:text-base">alexrott@stanford.edu</span>
-                    <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                {/* Email + phone */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6">
+                  <div className="group relative">
+                    <div
+                      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 text-gray-700 hover:text-gray-900 transition-colors duration-200 cursor-pointer"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                      onClick={() => {
+                        navigator.clipboard.writeText('alexrott@stanford.edu');
+                      }}
+                    >
+                      <span className="font-medium text-sm sm:text-base">alexrott@stanford.edu</span>
+                      <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
                   </div>
+                  <a
+                    href="tel:+13109094055"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 font-medium text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    +1 (310) 909-4055
+                  </a>
                 </div>
               </motion.div>
             </motion.div>
