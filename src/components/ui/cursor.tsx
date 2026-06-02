@@ -109,6 +109,29 @@ function ProjectDescriptionLink({ href, children }: { href: string; children: Re
   );
 }
 
+export function SomniCursor() {
+  return (
+    <div className="w-full py-2 md:py-0">
+      <div className={previewRowClass}>
+        <PreviewCardImage
+          src="/images/Somni%20front%20page.png"
+          alt="Somni"
+          href="/projects/somni"
+          priority
+        />
+
+        <div className={previewTextColClass}>
+          <ProjectTitleLink href="/projects/somni">Somni</ProjectTitleLink>
+          <ProjectSubtitleLink href="/projects/somni">Stanford Capstone Project</ProjectSubtitleLink>
+          <ProjectDescriptionLink href="/projects/somni">
+            An AI-driven product that makes dream journaling frictionless, turning dream recall into organized reflections, patterns, and insights.
+          </ProjectDescriptionLink>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PhysicalProjectsCursor() {
   return (
     <div className="w-full py-2 md:py-0">
@@ -139,7 +162,6 @@ export function GaryLangCursor() {
           src="/images/nealfeay.jpg"
           alt="Neal Feay Internship"
           href="/projects/nealfeay"
-          priority
         />
 
         <div className={previewTextColClass}>

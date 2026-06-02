@@ -7,19 +7,19 @@ import {
   TempoCrankCursor,
   WinterWaveCursor,
   GearTrainsCursor,
-  AlexToolkitCursor,
+  SomniCursor,
 } from '@/components/ui/cursor';
 import Navigation from '@/components/Navigation';
 import { ViewportReveal } from '@/components/ViewportReveal';
 
 const PROJECTS = [
+  { id: 'somni', label: 'Somni', Component: SomniCursor },
   { id: 'neal-feay', label: 'Neal Feay', Component: GaryLangCursor },
   { id: 'tempo-crank', label: 'Tempo Crank', Component: TempoCrankCursor },
   { id: 'le-coquetier', label: 'Le Coquetier', Component: EggHolderCursor },
   { id: 'winter-wave', label: 'Winter Wave', Component: WinterWaveCursor },
   { id: 'retinac', label: 'Retinac', Component: PhysicalProjectsCursor },
   { id: 'gear-trains', label: 'Gear Trains', Component: GearTrainsCursor },
-  { id: 'toolkit', label: 'Toolkit', Component: AlexToolkitCursor },
 ] as const;
 
 const LAST_PROJECT_INDEX = PROJECTS.length - 1;
