@@ -924,13 +924,17 @@ function FourPieces() {
   // Exploded parts fade out as the assembled device fades in (overlapping).
   const groupOpacity = useTransform(progress, FP_ASSEMBLE, [1, 0]);
   const groupScale = useTransform(progress, FP_ASSEMBLE, [1, 0.93]);
-  const hdOpacity = useTransform(progress, FP_ASSEMBLE, [0, 1]);
   const hdScale = useTransform(progress, FP_ASSEMBLE, [0.9, 1]);
   const glowOpacity = useTransform(
     progress,
-    [FP_ASSEMBLE[0], FP_ASSEMBLE[1], 1],
-    [0, 0.85, 1]
+    [FP_ASSEMBLE[0], FP_ASSEMBLE[1], 0.93],
+    [0, 0.85, 0]
   );
+
+  const hdOpacity = useTransform(progress, [FP_ASSEMBLE[0], 0.66, 0.76, 0.84], [0, 1, 1, 0]);
+  // Crossfade in by 0.84, then hold iterations on screen until section ends.
+  const iterationsOpacity = useTransform(progress, [0.76, 0.84, 1], [0, 1, 1]);
+  const iterationsY = useTransform(progress, [0.76, 0.84], [20, 0]);
 
   // Interactive mouse tilt over the whole stage.
   const stageRef = useRef(null);
@@ -954,13 +958,13 @@ function FourPieces() {
   };
 
   return (
-    <div ref={sectionRef} className="relative mt-16 h-[440vh]">
-      <div className="sticky top-0 flex h-screen items-center justify-center">
+    <div ref={sectionRef} className="relative mt-16 h-[720vh]">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center px-4">
         <div
           ref={stageRef}
           onMouseMove={handleMove}
           onMouseLeave={handleLeave}
-          className="relative flex h-[480px] w-full max-w-[440px] items-center justify-center"
+          className="relative flex h-[min(480px,56vh)] w-full max-w-5xl items-center justify-center"
           style={{ perspective: 1200 }}
         >
           <motion.div
@@ -995,6 +999,25 @@ function FourPieces() {
                 />
               </div>
             </motion.div>
+          </motion.div>
+
+          {/* same spot as HD — crossfade in as device fades out */}
+          <motion.div
+            className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-2"
+            style={{ opacity: iterationsOpacity, y: iterationsY }}
+          >
+            <p
+              className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.28em] text-gray-900"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              After countless iterations
+            </p>
+            <img
+              src="/images/somni-iterations-lineup.png"
+              alt="Six Somni prototypes from first concept to final product"
+              draggable={false}
+              className="w-full max-w-4xl select-none rounded-lg object-contain"
+            />
           </motion.div>
         </div>
       </div>
@@ -1061,7 +1084,8 @@ function FormTab() {
           className="text-4xl font-black leading-tight tracking-tight text-gray-900 sm:text-6xl"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          Four pieces into one form.
+          four pieces into one{' '}
+          <span className="text-sky-600">form</span>.
         </h1>
       </div>
 
