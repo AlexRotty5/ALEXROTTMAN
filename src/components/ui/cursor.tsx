@@ -55,10 +55,18 @@ function PreviewCardImage({
 const sliderPause = () => window.dispatchEvent(new CustomEvent('slider-pause'));
 const sliderResume = () => window.dispatchEvent(new CustomEvent('slider-resume'));
 
-function ProjectTitleLink({ href, children }: { href: string; children: React.ReactNode }) {
+function ProjectTitleLink({
+  href,
+  children,
+  trackingClass = 'tracking-[-0.1em]',
+}: {
+  href: string;
+  children: React.ReactNode;
+  trackingClass?: string;
+}) {
   return (
     <h2
-      className="mb-3 sm:mb-4 text-5xl sm:text-6xl font-bold uppercase tracking-[-0.1em]"
+      className={`mb-3 sm:mb-4 text-5xl sm:text-6xl font-bold uppercase ${trackingClass}`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <Link
@@ -121,7 +129,9 @@ export function SomniCursor() {
         />
 
         <div className={previewTextColClass}>
-          <ProjectTitleLink href="/projects/somni">Somni</ProjectTitleLink>
+          <ProjectTitleLink href="/projects/somni" trackingClass="tracking-[-0.05em]">
+            Somni
+          </ProjectTitleLink>
           <ProjectSubtitleLink href="/projects/somni">Stanford Capstone Project</ProjectSubtitleLink>
           <ProjectDescriptionLink href="/projects/somni">
             An AI-driven product that makes dream journaling frictionless, turning dream recall into organized reflections, patterns, and insights.

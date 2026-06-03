@@ -7,6 +7,8 @@ interface PerfData {
 }
 
 export function logPerf(tag: string): void {
+  if (typeof window === 'undefined') return;
+
   const perfData: PerfData = {
     tag,
     domNodes: document.getElementsByTagName('*').length,

@@ -1,6 +1,8 @@
 import { cleanupRegistry } from '../debug/perfLog';
 
 export function globalCleanup(): void {
+  if (typeof window === 'undefined') return;
+
   console.log('🧹 Running global cleanup...');
 
   // Cancel all tracked rAF calls

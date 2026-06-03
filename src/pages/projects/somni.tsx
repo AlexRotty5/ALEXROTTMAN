@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import {
   motion,
   AnimatePresence,
@@ -14,10 +14,13 @@ import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
 
 const TABS = [
-  { id: 'project', label: 'project' },
-  { id: 'form', label: 'form' },
-  { id: 'electronics', label: 'electronics' },
+  { id: 'project', label: 'Project' },
+  { id: 'form', label: 'Form' },
+  { id: 'electronics', label: 'Electronics' },
 ];
+
+const SOMNI_WAITLIST_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSdn3Vi3cO3PLD5ggBPtHqpuNz7GXvJHz32m6knjm77szy23jw/viewform';
 
 /* ------------------------------------------------------------------ */
 /* Recall timeline geometry                                            */
@@ -96,76 +99,6 @@ const windowRightX = xForT(10);
 const labelBandY = 296; // where connector lines stop / labels begin
 
 function Hero360() {
-  const videoRef = useRef(null);
-
-  // Callback ref: force-mute the element the instant it mounts, BEFORE the
-  // browser evaluates its autoplay policy (React's `muted` prop can apply too
-  // late on a fresh page load, which blocks autoplay).
-  const attachRef = (node) => {
-    videoRef.current = node;
-    if (node) {
-      node.muted = true;
-      node.defaultMuted = true;
-      node.setAttribute('muted', '');
-    }
-  };
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.defaultMuted = true;
-
-    const tryPlay = () => {
-      if (!v) return;
-      v.muted = true;
-      const p = v.play();
-      if (p && p.catch) p.catch(() => {});
-    };
-
-    tryPlay();
-
-    const mediaEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'];
-    mediaEvents.forEach((e) => v.addEventListener(e, tryPlay));
-
-    // The video animates in from opacity:0; many browsers refuse to autoplay a
-    // video that isn't visible yet, so retry once it's actually on screen and
-    // again after the entrance animation settles.
-    let observer;
-    if (typeof IntersectionObserver !== 'undefined') {
-      observer = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((en) => en.isIntersecting)) tryPlay();
-        },
-        { threshold: 0.1 }
-      );
-      observer.observe(v);
-    }
-    const timers = [300, 800, 1500].map((ms) => setTimeout(tryPlay, ms));
-    const raf = requestAnimationFrame(tryPlay);
-
-    // Last-resort fallbacks: kick playback on first interaction or when the
-    // tab becomes visible, in case the initial autoplay attempt was blocked.
-    const interactionEvents = ['pointerdown', 'touchstart', 'keydown', 'scroll'];
-    const onInteract = () => tryPlay();
-    interactionEvents.forEach((e) =>
-      window.addEventListener(e, onInteract, { passive: true })
-    );
-    const onVisible = () => {
-      if (!document.hidden) tryPlay();
-    };
-    document.addEventListener('visibilitychange', onVisible);
-
-    return () => {
-      mediaEvents.forEach((e) => v.removeEventListener(e, tryPlay));
-      interactionEvents.forEach((e) => window.removeEventListener(e, onInteract));
-      document.removeEventListener('visibilitychange', onVisible);
-      if (observer) observer.disconnect();
-      timers.forEach(clearTimeout);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   return (
     <motion.div
       className="flex justify-center"
@@ -173,19 +106,13 @@ function Hero360() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: 'easeOut' }}
     >
-      {/* White-on-white multiply drops the background in every browser; the
-          product is dark so it stays, and the blue base light is preserved. */}
-      <video
-        ref={attachRef}
-        className="w-[360px] max-w-[82vw] sm:w-[420px]"
-        style={{ mixBlendMode: 'multiply' }}
-        src="/videos/somni-360-hd.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-label="Somni 360° product spin"
+      {/* Animated GIF loops without a play button — browsers block muted MP4 autoplay
+          inside transformed/animated layouts even when play() is called. */}
+      <img
+        src="/images/somni-360-spin.gif"
+        alt="Somni 360° product spin"
+        draggable={false}
+        className="w-[360px] max-w-[82vw] select-none sm:w-[420px]"
       />
     </motion.div>
   );
@@ -214,7 +141,7 @@ function RecallTimeline() {
             notebook or a phone ever could.
           </p>
         </div>
-        <div className="lg:-mt-44 lg:shrink-0 lg:translate-x-4">
+        <div className="lg:-mt-44 lg:ml-4 lg:shrink-0">
           <Hero360 />
         </div>
       </div>
@@ -1076,6 +1003,793 @@ function PartSlideIn({ src, alt }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Electronics tab — six components emerge from the shell              */
+/* ------------------------------------------------------------------ */
+
+const EC_COUNT = 6;
+const EC_SLOT = 1 / EC_COUNT;
+
+const EC_COMPONENTS = [
+  {
+    id: 'raspberry-pi',
+    n: '01',
+    label: 'Raspberry Pi',
+    tagline: 'The brain of Somni.',
+    body:
+      'Powered through USB-C, the Raspberry Pi connects the main electronic components and runs the logic that controls audio input, user interaction, LED feedback, and app-connected dream journaling features.',
+    src: '/images/electronics/raspberry-pi.png',
+    imgClass: 'w-[130px] sm:w-[150px]',
+    fromY: 88,
+    toY: -152,
+    xOffset: 0,
+    z: 55,
+  },
+  {
+    id: 'microphone',
+    n: '02',
+    label: 'Microphone',
+    tagline: 'Captures dream recall through voice.',
+    body:
+      'The microphone listens for the phone alarm trigger and records the user’s spoken dream reflection immediately after waking, reducing the friction of writing dreams down manually.',
+    src: '/images/electronics/microphone.png',
+    imgClass: 'w-[64px] sm:w-[76px]',
+    fromY: 92,
+    toY: -148,
+    xOffset: -36,
+    z: 56,
+  },
+  {
+    id: 'capacitive-touch',
+    n: '03',
+    label: 'Capacitive Touch Board',
+    tagline: 'Creates a seamless touch interface.',
+    body:
+      'The capacitive touch board allows the user to interact with Somni through the silicone surface, keeping the product clean and buttonless while still enabling simple controls like start, stop, or confirm.',
+    src: '/images/electronics/capacitive-touch.png',
+    imgClass: 'w-[118px] sm:w-[136px]',
+    fromY: 90,
+    toY: -156,
+    xOffset: 32,
+    z: 57,
+  },
+  {
+    id: 'i2s-amp',
+    n: '04',
+    label: 'Amplifier',
+    tagline: 'Boosts clear audio output.',
+    body:
+      'The amplifier strengthens the audio signal from the Raspberry Pi so Somni can play chimes and prompt the user clearly through the speaker.',
+    src: '/images/electronics/i2s-amplifier.png',
+    imgClass: 'w-[100px] sm:w-[116px]',
+    fromY: 86,
+    toY: -150,
+    xOffset: -28,
+    z: 58,
+  },
+  {
+    id: 'speaker',
+    n: '05',
+    label: 'Speaker',
+    tagline: 'Guides the user through the recall process.',
+    body:
+      'The speaker plays soft audio prompts and chimes that help guide the user into recording their dream while they are still in the moment after waking.',
+    src: '/images/electronics/speaker.png',
+    imgClass: 'w-[88px] sm:w-[104px]',
+    fromY: 94,
+    toY: -154,
+    xOffset: 24,
+    z: 59,
+  },
+  {
+    id: 'led-strip',
+    n: '06',
+    label: 'LEDs',
+    tagline: 'Provides ambient system feedback.',
+    body:
+      'The LED ring at the base gives Somni a subtle visual language, indicating states like powered on, listening, recording, or processing.',
+    src: '/images/electronics/led-strip.png',
+    imgClass: 'w-[148px] sm:w-[172px]',
+    fromY: 88,
+    toY: -158,
+    xOffset: 0,
+    z: 60,
+  },
+];
+
+function useComponentScrollOpacity(progress, index) {
+  const riseStart = index * EC_SLOT + 0.03;
+  const riseEnd = index * EC_SLOT + 0.11;
+  const fadeStart = (index + 1) * EC_SLOT + 0.02;
+  const fadeEnd = (index + 1) * EC_SLOT + 0.1;
+  const isLast = index === EC_COUNT - 1;
+
+  return useTransform(
+    progress,
+    isLast
+      ? [riseStart, riseEnd, 1]
+      : [riseStart, riseEnd, fadeStart, fadeEnd, 1],
+    isLast ? [0, 1, 1] : [0, 1, 1, 0, 0]
+  );
+}
+
+function EmergingComponent({ progress, component, index }) {
+  const riseStart = index * EC_SLOT + 0.03;
+  const riseEnd = index * EC_SLOT + 0.11;
+  const opacity = useComponentScrollOpacity(progress, index);
+  const y = useTransform(progress, [riseStart, riseEnd], [component.fromY, component.toY]);
+  const yEased = useSpring(y, { stiffness: 105, damping: 24, mass: 0.38 });
+  const scale = useTransform(progress, [riseStart, riseEnd], [0.38, 1]);
+  const scaleEased = useSpring(scale, { stiffness: 105, damping: 24, mass: 0.38 });
+  const x = useTransform(progress, [riseStart, riseEnd], [0, component.xOffset]);
+  const xEased = useSpring(x, { stiffness: 105, damping: 24, mass: 0.38 });
+  const zIndex = useTransform(progress, [riseStart, riseEnd], [28, component.z]);
+
+  return (
+    <motion.div
+      className="pointer-events-none absolute inset-0 flex items-center justify-center"
+      style={{ zIndex: zIndex }}
+    >
+      <motion.div
+        className="relative flex flex-col items-center"
+        style={{ y: yEased, x: xEased, scale: scaleEased, opacity }}
+      >
+        <img
+          src={component.src}
+          alt={component.label}
+          draggable={false}
+          className={`block select-none drop-shadow-[0_20px_32px_rgba(15,23,42,0.2)] ${component.imgClass}`}
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function ComponentCopyPanel({ progress, component, index }) {
+  const opacity = useComponentScrollOpacity(progress, index);
+
+  return (
+    <motion.div
+      className="absolute inset-0 flex flex-col justify-center gap-3"
+      style={{ opacity }}
+    >
+      <span
+        className="text-[11px] font-semibold tabular-nums tracking-[0.28em] text-sky-500"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        {component.n}
+      </span>
+      <h3
+        className="text-2xl font-black tracking-tight text-gray-900 sm:text-[1.65rem]"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        {component.label}
+      </h3>
+      <p
+        className="text-[15px] font-semibold leading-snug text-gray-900"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        {component.tagline}
+      </p>
+      <p
+        className="max-w-sm text-sm leading-relaxed text-gray-500"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        {component.body}
+      </p>
+    </motion.div>
+  );
+}
+
+function SixComponentsReveal() {
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  });
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 88,
+    damping: 26,
+    mass: 0.35,
+    restDelta: 0.0004,
+  });
+
+  const shellGlow = useTransform(progress, [0, 0.2, 1], [0.35, 0.7, 0.85]);
+
+  return (
+    <div ref={sectionRef} className="relative mt-12 h-[580vh] -mb-28 sm:-mb-36">
+      <div className="sticky top-0 flex h-screen items-center justify-center px-4 sm:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-12 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
+          <div className="relative flex h-[min(480px,58vh)] w-full max-w-md shrink-0 items-center justify-center sm:h-[min(520px,72vh)] lg:max-w-lg">
+            <motion.span
+              className="pointer-events-none absolute left-1/2 top-[18%] h-[28%] w-[42%] -translate-x-1/2 rounded-full bg-sky-400/35 blur-3xl"
+              style={{ opacity: shellGlow }}
+              aria-hidden
+            />
+
+            {EC_COMPONENTS.map((c, i) => (
+              <EmergingComponent key={c.id} progress={progress} component={c} index={i} />
+            ))}
+
+            <img
+              src="/images/electronics/somni-shell-hollow.png"
+              alt="Somni shell — hollow interior"
+              draggable={false}
+              className="relative z-40 w-full max-w-[min(340px,88vw)] select-none drop-shadow-[0_32px_48px_rgba(15,23,42,0.14)]"
+            />
+          </div>
+
+          <div className="relative w-full max-w-md text-center lg:max-w-[340px] lg:flex-1 lg:pl-4 lg:text-left xl:max-w-[380px]">
+            <div className="relative min-h-[200px] lg:min-h-[260px]">
+              {EC_COMPONENTS.map((c, i) => (
+                <ComponentCopyPanel
+                  key={c.id}
+                  progress={progress}
+                  component={c}
+                  index={i}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const STACK_TOP_Z = 50;
+
+function syncProcessVideoMute(video, wantsSound) {
+  video.muted = !wantsSound;
+  video.defaultMuted = !wantsSound;
+  if (!wantsSound) video.setAttribute('muted', '');
+  else video.removeAttribute('muted');
+}
+
+function playProcessVideo(video, wantsSound) {
+  syncProcessVideoMute(video, false);
+  const attempt = (withSound) => {
+    syncProcessVideoMute(video, withSound);
+    const p = video.play();
+    if (p?.catch) {
+      p.catch(() => {
+        if (withSound) attempt(false);
+      });
+    }
+  };
+  attempt(wantsSound);
+}
+
+function ProcessAutoplayVideo({
+  src,
+  label,
+  className = '',
+  videoRef,
+  wantsSound = false,
+}) {
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      loop
+      muted={!wantsSound}
+      playsInline
+      preload="auto"
+      aria-label={label}
+      className={className}
+    />
+  );
+}
+
+const PROCESS_VIDEOS = [
+  {
+    id: 'v3',
+    src: '/videos/electronics-process/IMG_7256.mp4',
+    label: 'Electronics assembly — component fitting',
+    sideCopy:
+      'With the MPR121 board wired up and copper touch pads on the shell exterior, we worked through every control over capacitive touch—checking connectivity before any silicone went on, then testing volume up and down and the active-listening toggle with audio from the speaker and visual feedback through the LEDs.',
+  },
+  {
+    id: 'v2',
+    src: '/videos/electronics-process/IMG_8190.mp4',
+    label: 'Electronics assembly — enclosure integration',
+    sideCopy:
+      'Testing capacitive touch and button response through the silicone shell. We experimented with copper pad height and thickness, and soldered leads directly to the pads instead of wrapping wire around them—small changes that made a real difference in sensitivity and reliability.',
+  },
+  {
+    id: 'v1',
+    src: '/videos/electronics-process/IMG_7231.mp4',
+    label: 'Electronics assembly — base wiring',
+    sideCopy:
+      'Testing visual feedback through the LED ring—our first real glimpse of Somni with light. Seeing the industrial design come through in software, not just on a bench, made the product feel tangible for the first time.',
+  },
+  {
+    id: 'v4',
+    src: '/videos/electronics-process/IMG_7232.mp4',
+    label: 'Electronics assembly — bench testing',
+    sideCopy:
+      'Syncing audio and visual feedback end to end—testing that every interaction felt right, and that the overall vibe matched what we wanted when Somni prompts you to speak your dream.',
+  },
+];
+
+const VIDEO_STACK_LAYOUT = [
+  { top: 0, left: 0, rotate: -2.5 },
+  { top: 22, left: 18, rotate: 1.5 },
+  { top: 44, left: 36, rotate: -1 },
+  { top: 66, left: 54, rotate: 2 },
+];
+
+const PROCESS_PHOTOS = [
+  {
+    src: '/images/electronics/process/bench-assembly.png',
+    alt: 'Bench assembly — Pi, LED ring, and Somni shell',
+  },
+  {
+    src: '/images/electronics/process/mpr121-wiring.png',
+    alt: 'MPR121 capacitive touch board wired inside the enclosure',
+  },
+  {
+    src: '/images/electronics/process/capacitive-prototype.png',
+    alt: 'Early capacitive touch prototype with foil electrodes',
+  },
+  {
+    src: '/images/electronics/process/shell-wiring.png',
+    alt: 'Signal wires routed through the printed shell',
+  },
+  {
+    src: '/images/electronics/process/raspberry-pi-bench.png',
+    alt: 'Raspberry Pi Zero wired on the workbench',
+  },
+  {
+    src: '/images/electronics/process/board-soldering.png',
+    alt: 'Touch sensor board held for soldering and inspection',
+  },
+];
+
+const SWIPE_OFF_THRESHOLD = 72;
+const SWIPE_VELOCITY = 380;
+
+function ProcessVideoCard({
+  video,
+  layout,
+  isTop,
+  onDismiss,
+  exitDirection = 1,
+  zIndex,
+  soundUnlocked = false,
+  onToggleSound,
+  isExiting = false,
+  registerVideoRef,
+}) {
+  const cardClass = isTop
+    ? 'absolute w-[82%] cursor-grab overflow-hidden rounded-2xl bg-gray-950 shadow-[0_20px_40px_rgba(15,23,42,0.18)] ring-1 ring-gray-200/80 active:cursor-grabbing'
+    : 'absolute w-[82%] overflow-hidden rounded-2xl bg-gray-950 shadow-[0_20px_40px_rgba(15,23,42,0.18)] ring-1 ring-gray-200/80 pointer-events-none';
+
+  return (
+    <motion.div
+      data-stack-card
+      className={cardClass}
+      style={{ top: layout.top, left: layout.left, zIndex }}
+      drag={isTop && !isExiting ? 'x' : false}
+      dragConstraints={isTop ? { left: 0, right: 0 } : false}
+      dragElastic={0.85}
+      dragMomentum={false}
+      whileDrag={isTop ? { scale: 1.02, cursor: 'grabbing' } : undefined}
+      onTap={isTop ? onToggleSound : undefined}
+      onDragEnd={
+        isTop
+          ? (_, info) => {
+              if (isExiting) return;
+              const off = info.offset.x;
+              const vel = info.velocity.x;
+              if (
+                Math.abs(off) > SWIPE_OFF_THRESHOLD ||
+                Math.abs(vel) > SWIPE_VELOCITY
+              ) {
+                onDismiss(off >= 0 ? 1 : -1);
+              }
+            }
+          : undefined
+      }
+      initial={false}
+      animate={
+        isTop && isExiting
+          ? {
+              x: exitDirection * 420,
+              opacity: 0,
+              rotate: layout.rotate + exitDirection * 10,
+            }
+          : { opacity: 1, scale: 1, x: 0, rotate: layout.rotate }
+      }
+      transition={
+        isTop && isExiting
+          ? { duration: 0.32, ease: [0.32, 0.72, 0, 1] }
+          : { duration: 0.35, ease: 'easeOut' }
+      }
+    >
+      <ProcessAutoplayVideo
+        src={video.src}
+        label={video.label}
+        videoRef={(node) => registerVideoRef(video.id, node)}
+        wantsSound={isTop && soundUnlocked}
+        className="pointer-events-none aspect-[4/5] w-full object-cover"
+      />
+    </motion.div>
+  );
+}
+
+function ProcessVideoStack({
+  align = 'center',
+  topIndex: topIndexProp,
+  onTopIndexChange,
+} = {}) {
+  const [topIndexInternal, setTopIndexInternal] = useState(0);
+  const topIndex = topIndexProp ?? topIndexInternal;
+  const setTopIndex = onTopIndexChange ?? setTopIndexInternal;
+  const [exitDir, setExitDir] = useState(1);
+  const [soundUnlocked, setSoundUnlocked] = useState(false);
+  const [stackInView, setStackInView] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
+  const [hintSpacer, setHintSpacer] = useState(56);
+  const stackRef = useRef(null);
+  const videoRefs = useRef({});
+  const topIndexRef = useRef(topIndex);
+  const soundRef = useRef(soundUnlocked);
+  const stackInViewRef = useRef(stackInView);
+  topIndexRef.current = topIndex;
+  soundRef.current = soundUnlocked;
+  stackInViewRef.current = stackInView;
+
+  const registerVideoRef = (id, node) => {
+    if (node) {
+      videoRefs.current[id] = node;
+      if (
+        stackInViewRef.current &&
+        id === PROCESS_VIDEOS[topIndexRef.current]?.id
+      ) {
+        playProcessVideo(node, soundRef.current);
+      }
+    } else {
+      delete videoRefs.current[id];
+    }
+  };
+
+  const syncStackPlayback = () => {
+    const topId = PROCESS_VIDEOS[topIndexRef.current]?.id;
+    const inView = stackInViewRef.current;
+    const wantsSound = soundRef.current;
+
+    PROCESS_VIDEOS.forEach(({ id }) => {
+      const el = videoRefs.current[id];
+      if (!el) return;
+
+      if (inView && id === topId) {
+        playProcessVideo(el, wantsSound);
+      } else {
+        el.pause();
+      }
+    });
+  };
+
+  useLayoutEffect(() => {
+    syncStackPlayback();
+  }, [topIndex, stackInView, soundUnlocked]);
+
+  useEffect(() => {
+    const cleanups = PROCESS_VIDEOS.map(({ id }) => {
+      const el = videoRefs.current[id];
+      if (!el) return undefined;
+
+      const onReady = () => {
+        if (id === PROCESS_VIDEOS[topIndexRef.current]?.id && stackInViewRef.current) {
+          playProcessVideo(el, soundRef.current);
+        }
+      };
+
+      ['loadeddata', 'canplay', 'canplaythrough'].forEach((e) =>
+        el.addEventListener(e, onReady)
+      );
+
+      return () => {
+        ['loadeddata', 'canplay', 'canplaythrough'].forEach((e) =>
+          el.removeEventListener(e, onReady)
+        );
+      };
+    });
+
+    return () => cleanups.forEach((fn) => fn?.());
+  }, [topIndex]);
+
+  useEffect(() => {
+    const el = stackRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStackInView(entry.isIntersecting);
+        if (!entry.isIntersecting) {
+          PROCESS_VIDEOS.forEach(({ id }) => videoRefs.current[id]?.pause());
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleSound = () => setSoundUnlocked((on) => !on);
+
+  const measureStackOverflow = useCallback(() => {
+    const root = stackRef.current;
+    if (!root) return;
+
+    let maxBottom = 0;
+    root.querySelectorAll('[data-stack-card]').forEach((node) => {
+      maxBottom = Math.max(maxBottom, node.offsetTop + node.offsetHeight);
+    });
+
+    setHintSpacer(Math.max(56, maxBottom - root.offsetHeight + 40));
+  }, []);
+
+  useLayoutEffect(() => {
+    measureStackOverflow();
+    const root = stackRef.current;
+    if (!root || typeof ResizeObserver === 'undefined') return undefined;
+
+    const observer = new ResizeObserver(measureStackOverflow);
+    observer.observe(root);
+    window.addEventListener('resize', measureStackOverflow);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measureStackOverflow);
+    };
+  }, [topIndex, measureStackOverflow]);
+
+  const dismissTop = (direction) => {
+    if (isExiting) return;
+    setExitDir(direction);
+    setIsExiting(true);
+    window.setTimeout(() => {
+      setTopIndex((i) => (i + 1) % PROCESS_VIDEOS.length);
+      setIsExiting(false);
+      requestAnimationFrame(() => syncStackPlayback());
+    }, 320);
+  };
+
+  const alignClass =
+    align === 'end' ? 'ml-auto mr-0' : 'mx-auto';
+
+  return (
+    <div className={`relative w-full max-w-md ${alignClass}`}>
+      <div className="mb-6 text-left sm:mb-8">
+        <p
+          className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-600/90"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          Function
+        </p>
+        <h3
+          className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          Putting it all together.
+        </h3>
+      </div>
+
+      <div
+        ref={stackRef}
+        className="relative h-[min(420px,58vw)] w-full overflow-visible sm:h-[460px]"
+      >
+        {PROCESS_VIDEOS.map((video, videoIdx) => {
+          const stackOrder =
+            (videoIdx - topIndex + PROCESS_VIDEOS.length) %
+            PROCESS_VIDEOS.length;
+          const isTop = stackOrder === 0;
+
+          return (
+            <ProcessVideoCard
+              key={video.id}
+              video={video}
+              layout={VIDEO_STACK_LAYOUT[stackOrder]}
+              zIndex={STACK_TOP_Z - stackOrder}
+              isTop={isTop}
+              isExiting={isTop && isExiting}
+              registerVideoRef={registerVideoRef}
+              soundUnlocked={soundUnlocked}
+              onToggleSound={toggleSound}
+              exitDirection={exitDir}
+              onDismiss={dismissTop}
+            />
+          );
+        })}
+      </div>
+      <div aria-hidden style={{ height: hintSpacer }} className="shrink-0" />
+      <p
+        className={`text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400 ${
+          align === 'end' ? 'text-right' : 'text-center'
+        }`}
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        Swipe the top clip → · tap for sound on / off
+      </p>
+      <p
+        className={`mt-4 text-xs tabular-nums text-gray-400 ${
+          align === 'end' ? 'text-right' : 'text-center'
+        }`}
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        {topIndex + 1} / {PROCESS_VIDEOS.length}
+      </p>
+    </div>
+  );
+}
+
+function ProcessVideoSection() {
+  const [topIndex, setTopIndex] = useState(0);
+  const activeVideo = PROCESS_VIDEOS[topIndex];
+  const activeSideCopy = activeVideo?.sideCopy;
+
+  return (
+    <motion.div
+      className="mt-10 grid items-stretch gap-10 lg:mt-8 lg:grid-cols-2 lg:gap-x-16"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.65, ease: 'easeOut', delay: 0.1 }}
+    >
+      <div className="relative lg:h-full lg:pr-6">
+        <div className="max-lg:py-2 lg:absolute lg:inset-x-0 lg:bottom-32 lg:top-[7.25rem] lg:flex lg:items-center">
+          <AnimatePresence mode="wait">
+            {activeSideCopy ? (
+              <motion.p
+                key={activeVideo.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="max-w-lg text-base leading-relaxed text-gray-600"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                {activeSideCopy}
+              </motion.p>
+            ) : (
+              <span className="sr-only">No description for this clip</span>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <div className="flex justify-end lg:justify-end">
+        <ProcessVideoStack
+          align="end"
+          topIndex={topIndex}
+          onTopIndexChange={setTopIndex}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function ProcessPhotoCluster() {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      {PROCESS_PHOTOS.map((photo) => (
+        <figure
+          key={photo.src}
+          className="overflow-hidden rounded-2xl bg-gray-100 ring-1 ring-gray-200/70"
+        >
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            draggable={false}
+            loading="lazy"
+            className="aspect-[4/5] w-full select-none object-cover"
+          />
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+function ElectronicsProcessSection() {
+  return (
+    <section className="relative z-10 mx-auto max-w-6xl px-6 pb-32 pt-4 sm:px-8">
+      <motion.div
+        className="mb-10 max-w-2xl lg:mb-12"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        <p
+          className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-600/90"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          Process
+        </p>
+        <h2
+          className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          Building and integrating
+        </h2>
+      </motion.div>
+
+      <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-x-16">
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.65, ease: 'easeOut' }}
+        >
+          <ProcessPhotoCluster />
+        </motion.div>
+
+        <div className="flex flex-col">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.06 }}
+          >
+            <div
+              className="flex max-w-md flex-col gap-4 text-base leading-relaxed text-gray-600"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              <p>
+                Somni&apos;s internal system was built around two main pathways: electronics
+                and physical integration. The microphone, speaker, amplifier, LEDs, and
+                capacitive touch board all connected back to the Raspberry Pi, through GPIO
+                pins and the microphone connecting directly through USB-C using an extension
+                cable.
+              </p>
+              <p>
+                Once everything worked on the bench, the bigger challenge was fitting it
+                cleanly inside the enclosure. Some components were held with designed-in
+                mounting points and M2 screws, while others required double-sided tape or hot
+                glue when the original fixturing did not work as planned.
+              </p>
+              <p>
+                The capacitive touch system required the most careful integration. The copper
+                pads, solder joints, and wires had to stay clean and still so the touch input
+                would stay sensitive without false triggering through the silicone surface.
+              </p>
+              <p>
+                Early enclosure tests showed that a working circuit on the bench does not
+                always survive assembly. Wires shifted, connections loosened, and tight internal
+                packaging created new issues, making wire routing and strain relief just as
+                important as the electronics themselves.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <ProcessVideoSection />
+    </section>
+  );
+}
+
+function ElectronicsTab() {
+  return (
+    <div className="mt-20">
+      <div className="mx-auto max-w-3xl text-center">
+        <h1
+          className="text-4xl font-black leading-tight tracking-tight text-gray-900 sm:text-6xl"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          Six main components, one{' '}
+          <span className="text-sky-600">function</span>.
+        </h1>
+      </div>
+
+      <SixComponentsReveal />
+      <ElectronicsProcessSection />
+    </div>
+  );
+}
+
 function FormTab() {
   return (
     <div className="mt-20">
@@ -1084,7 +1798,7 @@ function FormTab() {
           className="text-4xl font-black leading-tight tracking-tight text-gray-900 sm:text-6xl"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          four pieces into one{' '}
+          Four pieces into one{' '}
           <span className="text-sky-600">form</span>.
         </h1>
       </div>
@@ -1426,6 +2140,35 @@ function FormTab() {
   );
 }
 
+function SomniWaitlistCta() {
+  return (
+    <section className="mt-24 border-t border-gray-200/80 pt-16 text-center lg:mt-32 lg:pt-20">
+      <h2
+        className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        Want your own Somni?
+      </h2>
+      <p
+        className="mx-auto mt-4 max-w-md text-base leading-relaxed text-gray-600"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        We&apos;re building Somni v2 and plan to launch this summer—join the waitlist
+        to be first in line.
+      </p>
+      <a
+        href={SOMNI_WAITLIST_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-8 inline-flex items-center justify-center rounded-full bg-sky-600 px-8 py-3.5 text-sm font-semibold text-white shadow-[0_12px_28px_-12px_rgba(2,132,199,0.55)] transition-colors duration-300 hover:bg-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        Join Somni Waitlist
+      </a>
+    </section>
+  );
+}
+
 const SomniPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState('project');
@@ -1454,7 +2197,7 @@ const SomniPage = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative pb-2 text-xl font-semibold lowercase tracking-[-0.01em] transition-colors duration-300 focus:outline-none ${
+                className={`relative pb-2 text-xl font-semibold tracking-[-0.01em] transition-colors duration-300 focus:outline-none ${
                   isActive ? 'text-gray-900' : 'text-gray-400 hover:text-gray-700'
                 }`}
                 style={{ fontFamily: "'Inter', sans-serif" }}
@@ -1498,6 +2241,18 @@ const SomniPage = () => {
             <FormTab />
           </motion.div>
         )}
+
+        {activeTab === 'electronics' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <ElectronicsTab />
+          </motion.div>
+        )}
+
+        <SomniWaitlistCta />
       </motion.div>
     </div>
   );
