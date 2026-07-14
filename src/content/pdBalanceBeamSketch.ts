@@ -4,66 +4,43 @@ Servo beamServo;
 
 const int servoPin = 9;
 
-// Hot Wheels / object sensor
-const int trigPinObject = 7;
-const int echoPinObject = 6;
+const int carTrigPin = 7;
+const int carEchoPin = 6;
 
-// Cube / target sensor
-const int trigPinCube = 3;
-const int echoPinCube = 4;
+const int cubeTrigPin = 3;
+const int cubeEchoPin = 4;
 
-// Equilibrium from your test
-const int neutralAngle = 110;
+const int balanceAngle = 110;
 
-// Servo behavior:
-// 95  = rolls forward fast
-// 100 = rolls forward slow
-// 110 = equilibrium
-// 125 = rolls backward slow
-// 130 = rolls backward fast
-const int forwardAngleLimit = 90;
-const int backwardAngleLimit = 135;
+const int forwardTiltLimit = 90;
+const int backwardTiltLimit = 135;
 
-// Direction correction
-const int controlDirection = -1;
-
-// -------------------- CONTROL GAINS --------------------
+const int servoFlip = -1;
 
 float Kp = 3.4;
 float Kd = 0.7;
 
+const float frictionPush = 7.0;
+const float settleZoneCM = 0.8;
 
-const float minPushDegrees = 7.0;
+const float minGoodCM = 2.0;
+const float maxGoodCM = 35.0;
 
-const float deadbandCM = 0.8;
+const float minCubeTargetCM = 5.0;
+const float maxCubeTargetCM = 30.0;
 
-// -------------------- SENSOR SETTINGS --------------------
-const float minValidCM = 2.0;
-const float maxValidCM = 35.0;
+float cubeSensorOffset = 0.0;
 
-// Clamp cube target so it does not command impossible extremes
-const float minTargetCM = 5.0;
-const float maxTargetCM = 30.0;
-
-// If cube and car are physically lined up but readings differ,
-// set this to: object reading - cube reading
-float cubeOffsetCM = 0.0;
-
-// -------------------- STATE --------------------
-float lastGoodObject = 15.0;
+float lastGoodCar = 15.0;
 float lastGoodCube = 15.0;
-float lastObjectDistance = 15.0;
+float lastCarSpot = 15.0;
 
-unsigned long lastTime = 0;
+unsigned long lastLoopTime = 0;
 
-// -------------------- GRAPH SETTINGS --------------------
-// true = Arduino Serial Plotter mode
-// false = normal text debugging mode
 const bool plotMode = true;
 
-// -------------------- ULTRASONIC FUNCTION --------------------
-float measureCM(int trigPin, int echoPin) {
-  long duration;
+float getDistanceCM(int trigPin, int echoPin) {
+  long pulseTime;
 
   digitalWrite(trigPin, LOW);
   delayMicroseconds(5);
@@ -73,112 +50,105 @@ float measureCM(int trigPin, int echoPin) {
 
   digitalWrite(trigPin, LOW);
 
-  duration = pulseIn(echoPin, HIGH, 25000);
+  pulseTime = pulseIn(echoPin, HIGH, 25000);
 
-  if (duration == 0) {
+  if (pulseTime == 0) {
     return -1;
   }
 
-  return duration / 58.2;
+  return pulseTime / 58.2;
 }
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(trigPinObject, OUTPUT);
-  pinMode(echoPinObject, INPUT);
+  pinMode(carTrigPin, OUTPUT);
+  pinMode(carEchoPin, INPUT);
 
-  pinMode(trigPinCube, OUTPUT);
-  pinMode(echoPinCube, INPUT);
+  pinMode(cubeTrigPin, OUTPUT);
+  pinMode(cubeEchoPin, INPUT);
 
   beamServo.attach(servoPin);
-  beamServo.write(neutralAngle);
+  beamServo.write(balanceAngle);
 
   delay(1500);
 
-  float objectStart = measureCM(trigPinObject, echoPinObject);
+  float carStart = getDistanceCM(carTrigPin, carEchoPin);
   delay(50);
 
-  float cubeStart = measureCM(trigPinCube, echoPinCube);
+  float cubeStart = getDistanceCM(cubeTrigPin, cubeEchoPin);
 
-  if (objectStart >= minValidCM && objectStart <= maxValidCM) {
-    lastGoodObject = objectStart;
+  if (carStart >= minGoodCM && carStart <= maxGoodCM) {
+    lastGoodCar = carStart;
   } else {
-    lastGoodObject = 15.0;
+    lastGoodCar = 15.0;
   }
 
-  if (cubeStart >= minValidCM && cubeStart <= maxValidCM) {
+  if (cubeStart >= minGoodCM && cubeStart <= maxGoodCM) {
     lastGoodCube = cubeStart;
   } else {
-    lastGoodCube = lastGoodObject;
+    lastGoodCube = lastGoodCar;
   }
 
-  lastObjectDistance = lastGoodObject;
-  lastTime = millis();
+  lastCarSpot = lastGoodCar;
+  lastLoopTime = millis();
 
   if (!plotMode) {
-    Serial.println("Hot Wheels cube-following control started");
-    Serial.println("Final stable version");
-    Serial.println("Kp = 3.4");
-    Serial.println("Kd = 0.7");
-    Serial.println("deadbandCM = 0.8");
-    Serial.println("neutralAngle = 110");
-    Serial.println("Angle range = 90 to 135");
+    Serial.println("hot wheels cube follow started");
+    Serial.println("final version that worked");
+    Serial.println("kp 3.4");
+    Serial.println("kd 0.7");
+    Serial.println("settle zone .8 cm");
+    Serial.println("balance angle 110");
+    Serial.println("angle range 90 to 135");
   }
 }
 
 void loop() {
-  // -------------------- READ RAW OBJECT --------------------
-  float objectRaw = measureCM(trigPinObject, echoPinObject);
+  float carRaw = getDistanceCM(carTrigPin, carEchoPin);
   delay(25);
 
-  if (objectRaw >= minValidCM && objectRaw <= maxValidCM) {
-    lastGoodObject = objectRaw;
+  if (carRaw >= minGoodCM && carRaw <= maxGoodCM) {
+    lastGoodCar = carRaw;
   }
 
-  // -------------------- READ RAW CUBE TARGET --------------------
-  float cubeRaw = measureCM(trigPinCube, echoPinCube);
+  float cubeRaw = getDistanceCM(cubeTrigPin, cubeEchoPin);
   delay(25);
 
-  if (cubeRaw >= minValidCM && cubeRaw <= maxValidCM) {
+  if (cubeRaw >= minGoodCM && cubeRaw <= maxGoodCM) {
     lastGoodCube = cubeRaw;
   }
 
-  float objectDistance = lastGoodObject;
+  float carSpot = lastGoodCar;
 
-  float targetDistance = lastGoodCube + cubeOffsetCM;
-  targetDistance = constrain(targetDistance, minTargetCM, maxTargetCM);
+  float targetSpot = lastGoodCube + cubeSensorOffset;
+  targetSpot = constrain(targetSpot, minCubeTargetCM, maxCubeTargetCM);
 
-  // -------------------- TIME --------------------
   unsigned long now = millis();
-  float dt = (now - lastTime) / 1000.0;
+  float dt = (now - lastLoopTime) / 1000.0;
 
   if (dt <= 0.001) {
     dt = 0.05;
   }
 
-  // -------------------- ERROR --------------------
-  float error = objectDistance - targetDistance;
+  float error = carSpot - targetSpot;
 
-  // Positive velocity means object distance is increasing
-  float velocity = (objectDistance - lastObjectDistance) / dt;
+  float carSpeed = (carSpot - lastCarSpot) / dt;
 
-  // -------------------- PD CONTROL --------------------
   float Pterm = Kp * error;
-  float Dterm = Kd * velocity;
+  float Dterm = Kd * carSpeed;
 
   float correction = 0.0;
 
-  if (abs(error) > deadbandCM) {
+  if (abs(error) > settleZoneCM) {
     correction = Pterm + Dterm;
 
-    // Minimum push so it does not get stuck near equilibrium
-    if (correction > 0 && correction < minPushDegrees) {
-      correction = minPushDegrees;
+    if (correction > 0 && correction < frictionPush) {
+      correction = frictionPush;
     }
 
-    if (correction < 0 && correction > -minPushDegrees) {
-      correction = -minPushDegrees;
+    if (correction < 0 && correction > -frictionPush) {
+      correction = -frictionPush;
     }
   } else {
     correction = 0.0;
@@ -186,84 +156,287 @@ void loop() {
     Dterm = 0.0;
   }
 
-  /*
-    Angle behavior:
-    - Lower angles move forward
-    - Higher angles move backward
-  */
-  int servoAngle = neutralAngle - controlDirection * correction;
+  int servoAngle = balanceAngle - servoFlip * correction;
 
-  servoAngle = constrain(servoAngle, forwardAngleLimit, backwardAngleLimit);
+  servoAngle = constrain(servoAngle, forwardTiltLimit, backwardTiltLimit);
 
   beamServo.write(servoAngle);
 
-  // -------------------- SERIAL OUTPUT FOR PLOTTER --------------------
   if (plotMode) {
-    Serial.print("object:");
-    Serial.print(objectDistance);
+    Serial.print("car:");
+    Serial.print(carSpot);
     Serial.print("\\t");
 
-    Serial.print("target:");
-    Serial.print(targetDistance);
+    Serial.print("cube:");
+    Serial.print(targetSpot);
     Serial.print("\\t");
 
-    Serial.print("error:");
+    Serial.print("err:");
     Serial.print(error);
     Serial.print("\\t");
 
-    Serial.print("velocity:");
-    Serial.print(velocity);
+    Serial.print("spd:");
+    Serial.print(carSpeed);
     Serial.print("\\t");
 
     Serial.print("servo:");
     Serial.print(servoAngle);
     Serial.print("\\t");
 
-    Serial.print("Pterm:");
+    Serial.print("p:");
     Serial.print(Pterm);
     Serial.print("\\t");
 
-    Serial.print("Dterm:");
+    Serial.print("d:");
     Serial.print(Dterm);
     Serial.print("\\t");
 
-    Serial.print("correction:");
+    Serial.print("corr:");
     Serial.println(correction);
   } else {
-    Serial.print("ObjRaw: ");
-    Serial.print(objectRaw);
+    Serial.print("car raw ");
+    Serial.print(carRaw);
 
-    Serial.print(" | ObjUsed: ");
-    Serial.print(objectDistance);
+    Serial.print(" | car used ");
+    Serial.print(carSpot);
 
-    Serial.print(" | CubeRaw: ");
+    Serial.print(" | cube raw ");
     Serial.print(cubeRaw);
 
-    Serial.print(" | Target: ");
-    Serial.print(targetDistance);
+    Serial.print(" | target ");
+    Serial.print(targetSpot);
 
-    Serial.print(" | Error: ");
+    Serial.print(" | err ");
     Serial.print(error);
 
-    Serial.print(" | Vel: ");
-    Serial.print(velocity);
+    Serial.print(" | speed ");
+    Serial.print(carSpeed);
 
-    Serial.print(" | Pterm: ");
+    Serial.print(" | p ");
     Serial.print(Pterm);
 
-    Serial.print(" | Dterm: ");
+    Serial.print(" | d ");
     Serial.print(Dterm);
 
-    Serial.print(" | Corr: ");
+    Serial.print(" | corr ");
     Serial.print(correction);
 
-    Serial.print(" | Servo: ");
+    Serial.print(" | servo ");
     Serial.println(servoAngle);
   }
 
-  // -------------------- UPDATE --------------------
-  lastObjectDistance = objectDistance;
-  lastTime = now;
+  lastCarSpot = carSpot;
+  lastLoopTime = now;
 
   delay(35);
 }`;
+
+export const CODE_WALKTHROUGH_TAKEAWAY =
+  'The code reads the car and cube, checks for bad sensor values, calculates error and velocity, applies PD correction, and moves the servo within a tested range. The deadband, minimum push, and Serial Plotter helped make the system smoother and easier to tune.';
+
+export const CODE_WALKTHROUGH_SECTIONS = [
+  {
+    title: '1. Hardware Setup',
+    code: `#include <Servo.h>
+
+Servo beamServo;
+
+const int servoPin = 9;
+
+const int carTrigPin = 7;
+const int carEchoPin = 6;
+
+const int cubeTrigPin = 3;
+const int cubeEchoPin = 4;`,
+    description:
+      'This connects the code to the physical system: one servo controls the beam, one ultrasonic sensor tracks the Hot Wheels car, and the other tracks the reference cube.',
+  },
+  {
+    title: '2. Servo Angles',
+    code: `const int balanceAngle = 110;
+
+const int forwardTiltLimit = 90;
+const int backwardTiltLimit = 135;
+
+const int servoFlip = -1;`,
+    description:
+      'I found the neutral angle (110) through testing angle degree by degree. Lower angles rolled the car forward, higher angles rolled it backward, and the limits kept the beam from tilting too aggressively.',
+  },
+  {
+    title: '3. Tuning Values',
+    code: `float Kp = 3.4;
+float Kd = 0.7;
+
+const float frictionPush = 7.0;
+const float settleZoneCM = 0.8;`,
+    description:
+      'Kp controls how strongly the beam reacts to position error, while Kd adds damping based on the car\u2019s motion. The deadband stops tiny corrections near the target so it can settle, and the minimum push helps when I was dealing with friction.',
+  },
+  {
+    title: '4. Sensor Limits',
+    code: `const float minGoodCM = 2.0;
+const float maxGoodCM = 35.0;
+
+const float minCubeTargetCM = 5.0;
+const float maxCubeTargetCM = 30.0;
+
+float cubeSensorOffset = 0.0;`,
+    description:
+      'These limits helped me ignore bad ultrasonic readings and kept the cube target within a realistic part of the beam (I would sometimes randomly get a reading farther away than the end of the beam).',
+  },
+  {
+    title: '5. Saved Sensor Values',
+    code: `float lastGoodCar = 15.0;
+float lastGoodCube = 15.0;
+float lastCarSpot = 15.0;
+
+unsigned long lastLoopTime = 0;`,
+    description:
+      'The code stores the last good sensor readings so one bad ultrasonic value does not suddenly throw off the controller (basically makes it so it doesn\u2019t listen to every value the sensor gives).',
+  },
+  {
+    title: '6. Distance Function',
+    code: `float getDistanceCM(int trigPin, int echoPin) {
+  long pulseTime;
+
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(5);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(trigPin, LOW);
+
+  pulseTime = pulseIn(echoPin, HIGH, 25000);
+
+  if (pulseTime == 0) {
+    return -1;
+  }
+
+  return pulseTime / 58.2;
+}`,
+    description:
+      'This function reads an ultrasonic sensor and converts the echo time into centimeters. If the sensor times out, it returns -1 so the bad reading can be ignored!',
+  },
+  {
+    title: '7. Starting the System',
+    code: `void setup() {
+  Serial.begin(9600);
+
+  pinMode(carTrigPin, OUTPUT);
+  pinMode(carEchoPin, INPUT);
+
+  pinMode(cubeTrigPin, OUTPUT);
+  pinMode(cubeEchoPin, INPUT);
+
+  beamServo.attach(servoPin);
+  beamServo.write(balanceAngle);
+}`,
+    description:
+      'The setup starts the Serial Monitor, prepares both sensors, attaches the servo, and moves the beam to the neutral position.',
+  },
+  {
+    title: '8. Reading the Car + Cube',
+    code: `float carRaw = getDistanceCM(carTrigPin, carEchoPin);
+
+if (carRaw >= minGoodCM && carRaw <= maxGoodCM) {
+  lastGoodCar = carRaw;
+}
+
+float cubeRaw = getDistanceCM(cubeTrigPin, cubeEchoPin);
+
+if (cubeRaw >= minGoodCM && cubeRaw <= maxGoodCM) {
+  lastGoodCube = cubeRaw;
+}`,
+    description:
+      'Each loop reads the Hot Wheels car and the cube. The code only updates the values if the readings are realistic, which makes the controller less jumpy.',
+  },
+  {
+    title: '9. Target Position',
+    code: `float carSpot = lastGoodCar;
+
+float targetSpot = lastGoodCube + cubeSensorOffset;
+targetSpot = constrain(targetSpot, minCubeTargetCM, maxCubeTargetCM);`,
+    description:
+      'The cube acts as the moving target. The target is constrained so the controller does not try to send the car to an impossible position on the beam.',
+  },
+  {
+    title: '10. Error + Velocity',
+    code: `float error = carSpot - targetSpot;
+
+float carSpeed = (carSpot - lastCarSpot) / dt;`,
+    description:
+      'The error tells the controller how far the car is from the cube. The velocity estimates how fast the car is moving.',
+  },
+  {
+    title: '11. PD Terms',
+    code: `float Pterm = Kp * error;
+float Dterm = Kd * carSpeed;`,
+    description:
+      'The P term pushes the car back toward the target. The D term helps slow the response down so the car does not overshoot as much.',
+  },
+  {
+    title: '12. Deadband + Minimum Push',
+    code: `float correction = 0.0;
+
+if (abs(error) > settleZoneCM) {
+  correction = Pterm + Dterm;
+
+  if (correction > 0 && correction < frictionPush) {
+    correction = frictionPush;
+  }
+
+  if (correction < 0 && correction > -frictionPush) {
+    correction = -frictionPush;
+  }
+} else {
+  correction = 0.0;
+  Pterm = 0.0;
+  Dterm = 0.0;
+}`,
+    description:
+      'If the car is close enough, the code stops correcting to reduce jitter. If it is outside the deadband, the minimum push makes sure the servo moves enough to overcome friction.',
+  },
+  {
+    title: '13. Servo Command',
+    code: `int servoAngle = balanceAngle - servoFlip * correction;
+
+servoAngle = constrain(servoAngle, forwardTiltLimit, backwardTiltLimit);
+
+beamServo.write(servoAngle);`,
+    description:
+      'The correction becomes a servo angle. The angle is limited to the safe range I tested, then sent to the servo to tilt the beam.',
+  },
+  {
+    title: '14. Serial Plotter',
+    code: `Serial.print("car:");
+Serial.print(carSpot);
+Serial.print("\\t");
+
+Serial.print("cube:");
+Serial.print(targetSpot);
+Serial.print("\\t");
+
+Serial.print("err:");
+Serial.print(error);
+Serial.print("\\t");
+
+Serial.print("spd:");
+Serial.print(carSpeed);
+Serial.print("\\t");
+
+Serial.print("servo:");
+Serial.println(servoAngle);`,
+    description:
+      'I graphed the object position, target position, error, velocity, and servo angle so I could compare the data to the actual Hot Wheels motion while tuning.',
+  },
+  {
+    title: '15. Update for Next Loop',
+    code: `lastCarSpot = carSpot;
+lastLoopTime = now;
+
+delay(35);`,
+    description:
+      'At the end of each loop, the code saves the current position and time so the next loop can calculate velocity correctly.',
+  },
+] as const;

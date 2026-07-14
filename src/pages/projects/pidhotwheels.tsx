@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Maximize2, Mic, MicOff, X } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import { ProjectDetailBackNav } from '@/components/ProjectDetailBackNav';
-import { FULL_ARDUINO_SCRIPT } from '@/content/pdBalanceBeamSketch';
+import {
+  CODE_WALKTHROUGH_SECTIONS,
+  CODE_WALKTHROUGH_TAKEAWAY,
+  FULL_ARDUINO_SCRIPT,
+} from '@/content/pdBalanceBeamSketch';
 
 const VIDEO_SRC = '/images/pid-hot-wheels-page.MOV';
 
@@ -1225,82 +1229,15 @@ function CodeExplanationSection({
 function ControlLoopBreakdown() {
   return (
     <div className="space-y-8">
-      <CodeExplanationSection
-        title="Setup"
-        code={`const int servoPin = 9;
-const int trigPinObject = 7;
-const int echoPinObject = 6;
-const int trigPinCube = 3;
-const int echoPinCube = 4;
+      {CODE_WALKTHROUGH_SECTIONS.map((section) => (
+        <CodeExplanationSection key={section.title} title={section.title} code={section.code}>
+          <p>{section.description}</p>
+        </CodeExplanationSection>
+      ))}
 
-const int neutralAngle = 110;
-const int forwardAngleLimit = 90;
-const int backwardAngleLimit = 135;
-
-float Kp = 3.4;
-float Kd = 0.7;`}
-      >
-        <p>
-          Pin assignments, a calibrated neutral angle, and safe tilt limits. Kp and Kd are the final tuned gains — the
-          structure was in place before I found those values.
-        </p>
-      </CodeExplanationSection>
-
-      <CodeExplanationSection
-        title="Sensing"
-        code={`float measureCM(int trigPin, int echoPin) {
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  duration = pulseIn(echoPin, HIGH, 25000);
-  return duration / 58.2;
-}
-
-if (objectRaw >= minValidCM && objectRaw <= maxValidCM) {
-  lastGoodObject = objectRaw;
-}`}
-      >
-        <p>
-          One sensor tracks the car, the other tracks the movable reference cube as the live target. Bad readings are
-          ignored so a single glitch does not jerk the beam.
-        </p>
-      </CodeExplanationSection>
-
-      <CodeExplanationSection
-        title="PD control"
-        code={`float error = objectDistance - targetDistance;
-float velocity = (objectDistance - lastObjectDistance) / dt;
-
-float correction = Kp * error + Kd * velocity;
-
-if (abs(error) > deadbandCM) {
-  if (correction > 0 && correction < minPushDegrees) {
-    correction = minPushDegrees;
-  }
-} else {
-  correction = 0.0;
-}`}
-      >
-        <p>
-          Error and velocity feed into the PD equation. A deadband keeps the beam level near the target, and a minimum
-          push overcomes friction.
-        </p>
-      </CodeExplanationSection>
-
-      <CodeExplanationSection
-        title="Output"
-        code={`servoAngle = constrain(servoAngle, forwardAngleLimit, backwardAngleLimit);
-beamServo.write(servoAngle);
-
-Serial.print("error:");
-Serial.print(error);`}
-      >
-        <p>
-          The correction becomes a constrained servo angle. Serial output lets me compare the graph with the physical
-          car during tuning — it does not affect the controller.
-        </p>
-      </CodeExplanationSection>
+      <p className="text-sm leading-relaxed text-gray-600" style={inter}>
+        {CODE_WALKTHROUGH_TAKEAWAY}
+      </p>
     </div>
   );
 }
