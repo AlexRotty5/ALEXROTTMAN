@@ -8,12 +8,14 @@ import {
   WinterWaveCursor,
   GearTrainsCursor,
   SomniCursor,
+  PidHotWheelsCursor,
 } from '@/components/ui/cursor';
 import Navigation from '@/components/Navigation';
 import { ViewportReveal } from '@/components/ViewportReveal';
 
 const PROJECTS = [
   { id: 'somni', label: 'Somni', Component: SomniCursor },
+  { id: 'pid-hot-wheels', label: 'PD Balance Beam', Component: PidHotWheelsCursor },
   { id: 'neal-feay', label: 'Neal Feay', Component: GaryLangCursor },
   { id: 'tempo-crank', label: 'Tempo Crank', Component: TempoCrankCursor },
   { id: 'le-coquetier', label: 'Le Coquetier', Component: EggHolderCursor },

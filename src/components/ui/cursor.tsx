@@ -59,14 +59,16 @@ function ProjectTitleLink({
   href,
   children,
   trackingClass = 'tracking-[-0.1em]',
+  sizeClass = 'text-5xl sm:text-6xl',
 }: {
   href: string;
   children: React.ReactNode;
   trackingClass?: string;
+  sizeClass?: string;
 }) {
   return (
     <h2
-      className={`mb-3 sm:mb-4 text-5xl sm:text-6xl font-bold uppercase ${trackingClass}`}
+      className={`mb-3 sm:mb-4 font-bold uppercase ${sizeClass} ${trackingClass}`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <Link
@@ -135,6 +137,30 @@ export function SomniCursor() {
           <ProjectSubtitleLink href="/projects/somni">Stanford Capstone Project</ProjectSubtitleLink>
           <ProjectDescriptionLink href="/projects/somni">
             An AI-driven product that makes dream journaling frictionless, turning dream recall into organized reflections, patterns, and insights.
+          </ProjectDescriptionLink>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PidHotWheelsCursor() {
+  return (
+    <div className="w-full py-2 md:py-0">
+      <div className={previewRowClass}>
+        <PreviewCardImage
+          src="/images/pid-hot-wheels-main.png"
+          alt="PD Balance Beam"
+          href="/projects/pidhotwheels"
+        />
+
+        <div className={previewTextColClass}>
+          <ProjectTitleLink href="/projects/pidhotwheels" trackingClass="tracking-[-0.05em]">
+            PD Balance Beam
+          </ProjectTitleLink>
+          <ProjectSubtitleLink href="/projects/pidhotwheels">Personal Controls Project</ProjectSubtitleLink>
+          <ProjectDescriptionLink href="/projects/pidhotwheels">
+            A PD control system that uses Arduino, ultrasonic sensing, and servo actuation to stabilize a rolling Hot Wheels car on a beam, with the target position set by a movable reference cube.
           </ProjectDescriptionLink>
         </div>
       </div>
