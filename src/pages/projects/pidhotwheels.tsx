@@ -107,9 +107,9 @@ const PHYSICAL_TUNING_SLIDES = [
     type: 'video',
     alt: 'Testing servo angles to find the balance beam equilibrium angle',
     label: 'Equilibrium angle',
-    caption: 'Finding the neutral servo angle — but the guardrails kept making the ball hard to read.',
+    caption: 'Finding the neutral servo angle, but the guardrails kept making the ball hard to read.',
     callouts: [
-      { tone: 'red', label: 'Problem', text: 'The guard rails made it very hard for the ball to behave consistently — it rolled forward more easily than backward and would get stuck.' },
+      { tone: 'red', label: 'Problem', text: 'The guard rails made it very hard for the ball to behave consistently. It rolled forward more easily than backward and would get stuck.' },
       { tone: 'blue', label: 'Test', text: 'Tried servo angles where the ball stopped, rolled forward, or rolled backward.' },
       { tone: 'gray', label: 'Takeaway', text: 'I needed to find a way to move the ball more consistently without guard rails. I ordered bamboo sticks.' },
     ],
@@ -131,7 +131,7 @@ const PHYSICAL_TUNING_SLIDES = [
     type: 'video',
     alt: 'First ultrasonic sensor control test with the ping pong ball',
     label: 'First sensor control',
-    caption: 'First closed-loop test — the ball reacted but never settled.',
+    caption: 'First closed-loop test. The ball reacted but never settled.',
     callouts: [
       { tone: 'blue', label: 'Test', text: 'Balanced near the center of the beam, about 15 cm from the sensor.' },
       { tone: 'red', label: 'Problem', text: 'The ping pong ball reacted, but never fully settled.' },
@@ -155,7 +155,7 @@ const PHYSICAL_TUNING_SLIDES = [
     type: 'image',
     alt: 'Golf ball test on widened balance beam rails',
     label: 'Golf ball test',
-    caption: 'Widened rails and tried a golf ball for more mass — still too fast.',
+    caption: 'Widened rails and tried a golf ball for more mass, but still too fast.',
     callouts: [
       { tone: 'red', label: 'Problem', text: 'The ping pong ball was still too light and reactive.' },
       { tone: 'blue', label: 'Test', text: 'Widened the rails and tried a golf ball for more mass and friction.' },
@@ -167,7 +167,7 @@ const PHYSICAL_TUNING_SLIDES = [
     type: 'video',
     alt: 'Tennis ball and tape test with the reference cube connected',
     label: 'Tennis ball + tape',
-    caption: 'Tennis ball with added friction — still would not balance reliably.',
+    caption: 'Tennis ball with added friction, but still would not balance reliably.',
     callouts: [
       { tone: 'red', label: 'Problem', text: 'The system still needed a slower, more stable object.' },
       { tone: 'blue', label: 'Test', text: 'Tried a tennis ball with electrical tape on the rails and path.' },
@@ -192,7 +192,7 @@ const PHYSICAL_TUNING_SLIDES = [
     type: 'image',
     alt: 'Hot Wheels car modified for ultrasonic sensing on the balance beam',
     label: 'Hot Wheels car',
-    caption: 'Swapped the ball for a car — cleaner sensor reads and steadier motion.',
+    caption: 'Swapped the ball for a car for cleaner sensor reads and steadier motion.',
     callouts: [
       { tone: 'green', label: 'Fix', text: 'Replaced the ball with a Hot Wheels car.' },
       { tone: 'gray', label: 'Why', text: 'The car moved more consistently and gave the ultrasonic sensor a cleaner surface.' },
@@ -227,18 +227,19 @@ const SOFTWARE_TUNING_SLIDES = [
       src: '/images/pid/step05-01-overshoot-graph.MOV',
       alt: 'Serial Plotter graph showing the car overshooting the target',
       viewLabel: 'Serial Plotter',
-      caption: 'The line kept crossing past the target instead of settling.',
+      caption:
+        'This graph shows wide oscillations, so the car was overshooting the target instead of settling. The object line keeps crossing past the target, and the error swings above and below zero. The servo is making big corrections back and forth, but the car still has too much momentum. This told me I needed more damping or a less aggressive correction so it would slow down before passing the target.',
     },
     physical: {
       src: '/images/pid/step05-02-overshoot-physical.MOV',
       alt: 'Hot Wheels car overshooting the target on the balance beam',
       viewLabel: 'On the beam',
-      caption: 'Same thing in real life — the car had too much speed and rolled past center.',
+      caption: 'Same thing in real life. The car had too much speed and rolled past center.',
     },
     codeSnippet: 'Kp = 5.5;\nKd = 0.25;',
     explanation:
       'The controller was correcting in the right direction, but Kp was too strong and Kd was not slowing it down fast enough. I would watch the graph cross the setpoint, look up, and see the car do the same thing. That is when I started pulling Kp back and trying more damping.',
-    tuningTakeaway: 'High Kp, low Kd — fast response, but it overshot every time.',
+    tuningTakeaway: 'High Kp, low Kd: fast response, but it overshot every time.',
   },
   {
     type: 'comparison',
@@ -247,7 +248,8 @@ const SOFTWARE_TUNING_SLIDES = [
       src: '/images/pid/step05-03-too-sensitive-graph.MOV',
       alt: 'Serial Plotter graph showing rapid fluctuations around the target',
       viewLabel: 'Serial Plotter',
-      caption: 'Small rapid wiggles around the target on the graph.',
+      caption:
+        'The graph shows the system was too sensitive at this point. The D term keeps spiking up and down, so it was reacting to tiny sensor changes. The servo also keeps jumping even when the car is close to the target, which means it was over-correcting. I needed less Kd and more deadband so the car could actually settle eventually.',
     },
     physical: {
       src: '/images/pid/step05-04-too-sensitive-physical.MOV',
@@ -257,17 +259,17 @@ const SOFTWARE_TUNING_SLIDES = [
     },
     codeSnippet: 'Kd = 1.3;\ndeadbandCM = 0.0;',
     explanation:
-      'I kept turning Kd up trying to kill the overshoot, but the servo started reacting to every small change in the ultrasonic reading. With no deadband, it would not let the car sit still near the target — it just jittered in place.',
-    tuningTakeaway: 'Too much Kd, no deadband — jittery and overcorrecting near the target.',
+      'I kept turning Kd up trying to kill the overshoot, but the servo started reacting to every small change in the ultrasonic reading. With no deadband, it would not let the car sit still near the target. It just jittered in place.',
+    tuningTakeaway: 'Too much Kd, no deadband: jittery and overcorrecting near the target.',
     finalCodeSnippet: `Kp = 3.4;
 Kd = 0.7;
 deadbandCM = 0.8;
 minPushDegrees = 7.0;
 neutralAngle = 110;`,
     finalExplanation:
-      'By the time the physical side felt solid, the code still was not giving me the motion I wanted. After enough back and forth — change values, upload, watch the graph, watch the car — I landed somewhere in the middle. These were the numbers where the car could move toward the target without overshooting badly or fighting tiny sensor noise.',
+      'By this point, the physical system was finally repeatable, but the code still needed tuning. I kept changing values, uploading, watching the graph, and comparing it to the car\u2019s motion.',
     finalTakeaway:
-      'Getting the physical system repeatable was only half of it. The rest was uploading new values and reading the graph next to the car until the code matched what the hardware could actually do. Overshoot meant back off Kp or add damping. Jitter meant I had pushed Kd too far or needed a deadband. The final values were where both finally performed as well as they could.',
+      'Overshoot told me the response was too aggressive or needed more damping. Jitter told me Kd was too high or the deadband needed to be larger. The final values were the middle ground where the car followed the target without overshooting too much or fighting tiny sensor noise.',
   },
 ];
 
@@ -313,6 +315,9 @@ const inter = { fontFamily: "'Inter', sans-serif" };
 
 const carouselNavButtonClass =
   'flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-md ring-1 ring-gray-200/80 transition-colors hover:bg-white hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50';
+
+const softwareCarouselNavButtonClass =
+  'flex h-10 w-10 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg ring-2 ring-sky-400/40 transition-colors hover:bg-sky-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:pointer-events-none disabled:opacity-35';
 
 function HardwareTestingCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: (typeof HARDWARE_TESTING_SLIDES)[number]) => void }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -736,11 +741,11 @@ function PhysicalTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
                           ref={(node) => {
                             videoRefs.current[index] = node;
                           }}
-                          src={slide.src}
+                          src={Math.abs(index - activeIndex) <= 1 ? slide.src : undefined}
                           muted={isMuted}
                           loop
                           playsInline
-                          preload="metadata"
+                          preload="none"
                           className="h-full w-full object-cover"
                         />
                         <div className="absolute bottom-3 right-3 z-10 flex gap-2">
@@ -1267,7 +1272,7 @@ function Step03Code({ step }: { step: (typeof BUILDING_STEPS)[2] }) {
           </h3>
 
           <p className="mt-4 max-w-lg text-base leading-relaxed text-gray-600 sm:text-lg" style={inter}>
-            I wrote the control loop first — measure, compute, command — then tuned Kp and Kd. Snippets below use my
+            I wrote the control loop first (measure, compute, command), then tuned Kp and Kd. Snippets below use my
             final values.
           </p>
 
@@ -1286,7 +1291,7 @@ function Step03Code({ step }: { step: (typeof BUILDING_STEPS)[2] }) {
               aria-expanded={expanded}
             >
               <span className="text-sm font-semibold text-gray-900">
-                {expanded ? 'Hide my code' : 'My code'}
+                {expanded ? 'Hide my code breakdown' : 'My code breakdown'}
               </span>
               {expanded ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
             </button>
@@ -1423,10 +1428,10 @@ function PidHero({
         </h1>
         <div className="space-y-3" style={inter}>
           <p className="max-w-4xl text-base leading-relaxed text-gray-700 sm:text-lg">
-            I designed and built a closed-loop PD-controlled balance beam that uses an Arduino, two ultrasonic sensors, and a servo to stabilize my old Hot Wheels toy car. The system tracks both the car position and a movable reference cube, allowing the user to set the target location in real time.
+            I built the whole system from scratch, including the mechanical structure. I designed a closed-loop PD-controlled balance beam that uses an Arduino, two ultrasonic sensors, and a servo to stabilize my old Hot Wheels toy car. The system tracks both the car position and a movable reference cube, allowing the user to set the target location in real time.
           </p>
           <p className="max-w-4xl text-base leading-relaxed text-gray-700 sm:text-lg">
-            I built the mechanical structure, wrote the control code, estimated initial PD gains from the system dynamics, and tuned the controller through lots of testing.
+            I wrote the control code and tuned the controller through lots of testing.
           </p>
         </div>
       </div>
@@ -1542,7 +1547,7 @@ function SoftwareComparisonVideo({
           autoPlay
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           className="h-full w-full object-cover"
         />
         <div className="absolute bottom-2 right-2 z-10 flex gap-1.5">
@@ -1584,27 +1589,26 @@ function SoftwareComparisonVideo({
 function SoftwareSlideDetails({ slide, showControllerIntro }: { slide: (typeof SOFTWARE_TUNING_SLIDES)[number]; showControllerIntro?: boolean }) {
   if (slide.type === 'single') {
     return (
-      <div className="min-h-[8rem] lg:pt-1">
-        {showControllerIntro && (
-          <div className="mb-5 space-y-3">
+      <div className="min-h-0 lg:flex lg:h-full lg:flex-col lg:justify-center">
+        {showControllerIntro ? (
+          <div className="space-y-3">
+            <p className="text-lg font-semibold leading-snug text-gray-900 sm:text-xl" style={inter}>
+              {slide.label}
+            </p>
             <p className="text-sm leading-relaxed text-gray-600" style={inter}>
-              Once the physical setup was repeatable enough, the car still would not behave the way I wanted until I kept changing the code. Most of this was uploading new Kp, Kd, and deadband values, watching the Serial Plotter, and looking at the car on the beam at the same time.
+              After the hardware was solid, I tuned Kp, Kd, and deadband while watching the graph and the car.
             </p>
             <TuningCodeBlock code={PD_CONTROLLER_LOGIC} />
-            <ul className="space-y-1.5 text-sm leading-relaxed text-gray-600" style={inter}>
-              <li>
-                <span className="font-semibold text-gray-800">Kp</span> controls how aggressively the servo responds to position error.
-              </li>
-              <li>
-                <span className="font-semibold text-gray-800">Kd</span> adds damping by reacting to how quickly the error is changing.
-              </li>
-              <li>
-                <span className="font-semibold text-gray-800">deadbandCM</span> creates an acceptable target zone so the servo does not constantly chase tiny sensor changes.
-              </li>
-            </ul>
+            <p className="text-sm leading-relaxed text-gray-600" style={inter}>
+              <span className="font-semibold text-gray-800">Kp</span> corrects error.{' '}
+              <span className="font-semibold text-gray-800">Kd</span> damps motion.{' '}
+              <span className="font-semibold text-gray-800">Deadband</span> stops jitter.
+            </p>
+            <TuningCalloutList callouts={slide.callouts} />
           </div>
+        ) : (
+          <TuningSlideDetails label={slide.label} caption={slide.caption} callouts={slide.callouts} />
         )}
-        <TuningSlideDetails label={slide.label} caption={slide.caption} callouts={slide.callouts} />
       </div>
     );
   }
@@ -1701,7 +1705,7 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
             transition={{ duration: 0.25 }}
             className="space-y-8"
           >
-            <div className="relative">
+            <div className="relative px-12 sm:px-14 lg:px-16">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
                 <SoftwareComparisonVideo
                   video={activeSlide.graph}
@@ -1721,19 +1725,19 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
                 type="button"
                 onClick={() => scrollToIndex(activeIndex - 1)}
                 disabled={activeIndex === 0}
-                className={`absolute -left-3 top-[22vh] z-10 hidden -translate-y-1/2 sm:block lg:-left-4 ${carouselNavButtonClass} disabled:pointer-events-none disabled:opacity-35`}
+                className={`absolute left-0 top-1/2 z-10 -translate-y-1/2 ${softwareCarouselNavButtonClass}`}
                 aria-label="Previous pass"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollToIndex(activeIndex + 1)}
                 disabled={activeIndex === SOFTWARE_TUNING_SLIDES.length - 1}
-                className={`absolute -right-3 top-[22vh] z-10 hidden -translate-y-1/2 sm:block lg:-right-4 ${carouselNavButtonClass} disabled:pointer-events-none disabled:opacity-35`}
+                className={`absolute right-0 top-1/2 z-10 -translate-y-1/2 ${softwareCarouselNavButtonClass}`}
                 aria-label="Next pass"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" />
               </button>
             </div>
 
@@ -1748,7 +1752,7 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
 
   return (
     <div className="w-full">
-      <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-10">
         <div className="relative min-w-0">
           <AnimatePresence mode="wait">
             <motion.div
@@ -1757,8 +1761,9 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
               transition={{ duration: 0.25 }}
+              className="relative mx-auto w-[38vh] max-w-full px-12 sm:px-14 lg:mx-0 lg:w-[42vh]"
             >
-              <div className="relative mr-auto h-[44vh] w-[33vh] max-w-full overflow-hidden rounded-2xl bg-gray-950 lg:h-[48vh] lg:w-[36vh]">
+              <div className="relative h-[50vh] overflow-hidden rounded-2xl bg-gray-950 lg:h-[56vh]">
                 <video
                   ref={singleVideoRef}
                   src={activeSlide.src}
@@ -1766,7 +1771,7 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
                   autoPlay
                   loop
                   playsInline
-                  preload="auto"
+                  preload="metadata"
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute bottom-3 right-3 z-10 flex gap-2">
@@ -1792,26 +1797,26 @@ function SoftwareTuningCarousel({ onExpandPhoto }: { onExpandPhoto: (slide: { sr
                     <Maximize2 className="h-4 w-4" />
                   </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => scrollToIndex(activeIndex - 1)}
-                  disabled={activeIndex === 0}
-                  className={`absolute left-3 top-1/2 z-10 -translate-y-1/2 ${carouselNavButtonClass} disabled:pointer-events-none disabled:opacity-35`}
-                  aria-label="Previous pass"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollToIndex(activeIndex + 1)}
-                  disabled={activeIndex === SOFTWARE_TUNING_SLIDES.length - 1}
-                  className={`absolute right-3 top-1/2 z-10 -translate-y-1/2 ${carouselNavButtonClass} disabled:pointer-events-none disabled:opacity-35`}
-                  aria-label="Next pass"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() => scrollToIndex(activeIndex - 1)}
+                disabled={activeIndex === 0}
+                className={`absolute left-0 top-1/2 z-10 -translate-y-1/2 ${softwareCarouselNavButtonClass}`}
+                aria-label="Previous pass"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToIndex(activeIndex + 1)}
+                disabled={activeIndex === SOFTWARE_TUNING_SLIDES.length - 1}
+                className={`absolute right-0 top-1/2 z-10 -translate-y-1/2 ${softwareCarouselNavButtonClass}`}
+                aria-label="Next pass"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </motion.div>
           </AnimatePresence>
 
@@ -1951,7 +1956,7 @@ function BuildingTab({ onExpandPhoto }: { onExpandPhoto: (slide: { src: string; 
         <ProcessSectionHeader
           eyebrow="Stage 2"
           title="Tuning"
-          desc="First I tuned the physical setup until the car moved repeatably. Then I spent most of my time in the code — changing Kp, Kd, and deadband, chasing oscillations on the graph — until the whole system performed as well as it possibly could."
+          desc="First I tuned the physical setup until the car moved repeatably. Then I spent most of my time in the code, changing Kp, Kd, and deadband, chasing oscillations on the graph, until the whole system performed as well as it possibly could."
         />
         <TuningTracks onExpandPhoto={onExpandPhoto} />
       </div>
