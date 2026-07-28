@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { Analytics } from '@vercel/analytics/react';
 import '../styles/globals.css';
 import '../styles/text-pressure.css';
 import { ImageLightboxProvider } from '@/components/ImageLightbox';
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }: any) {
   return (
     <ImageLightboxProvider>
       <Component {...pageProps} />
+      <Analytics />
     </ImageLightboxProvider>
   );
-} 
+}
